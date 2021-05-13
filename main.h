@@ -90,11 +90,13 @@ extern MPI_Datatype MPI_PAKIET_T;
 extern int lclock;
 
 #ifdef DEBUG
-#define debug(FORMAT,...) printf("%c[%d;%dm [%d]:[%d] " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lclock, ##__VA_ARGS__, 27,0,37);
+#define debug(FORMAT,...) printf("%c[%d;%dm [%d]:[%d] " FORMAT "%c[%d;%dm\n", 27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lclock, ##__VA_ARGS__, 27,0,37);
 #else
 #define debug(...) ;
 #endif
+
 //#define debug(FORMAT,...) printf("%c[%d;%dm [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, ##__VA_ARGS__, 27,0,37);
+
 #define P_WHITE printf("%c[%d;%dm",27,1,37);
 #define P_BLACK printf("%c[%d;%dm",27,1,30);
 #define P_RED printf("%c[%d;%dm",27,1,31);
@@ -106,14 +108,14 @@ extern int lclock;
 #define P_CLR printf("%c[%d;%dm",27,0,37);
 
 /* printf ale z kolorkami i automatycznym wyświetlaniem RANK. Patrz debug wyżej po szczegóły, jak działa ustawianie kolorków */
-#define println(FORMAT, ...) printf("%c[%d;%dm [%d]:[%d] " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lclock, ##__VA_ARGS__, 27,0,37);
+#define println(FORMAT, ...) printf("%c[%d;%dm [%d]:[%d] " FORMAT "%c[%d;%dm\n", 27, (1+(rank/7))%2, 31+(6+rank)%7, rank, lclock, ##__VA_ARGS__, 27,0,37);
 
 /* wysyłanie pakietu, skrót: wskaźnik do pakietu (0 oznacza stwórz pusty pakiet), do kogo, z jakim typem */
 void sendPacket(packet_t *pkt, int destination, int tag);
-void changeState( state_t );
-void changeTallow( int );
-void changeB( int );
-void changeK( int );
-int changeClock( int );
-int setClock( int );
+void changeState(state_t);
+void changeTallow(int);
+void changeB(int);
+void changeK(int);
+int changeClock(int);
+int setClock(int);
 #endif

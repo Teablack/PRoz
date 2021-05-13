@@ -23,4 +23,61 @@ void mainLoop()
         }
         sleep(SEC_IN_STATE);
     }
+    /**
+    while(true){
+        if(stan==INIT){
+            for(int i=0;i<size;i++)
+                sendPacket(ln, i, REQUEST_FOR_DESK)
+            desk_queue.clear()
+            desk_queue.add(my_el)
+            int free_B=B //poki co lokalna 
+            changeClock(1);
+            changeState(WAITING_TO_DISCUSS);
+        }
+        else if(stan==WAITING_TO_DISCUSS){
+            //EDIT algorytmu - rozbic na dwa stany
+            while(desk_queue<size-1){
+                //tu chyba zawieszam się - muszę zasypiac ? czekam aż drugi wątek mnie obudzi??
+                //dalej w wątku komunikacyjnym:
+                //?odbieranie po jednej REQUEST_FOR_DESK lub ACK_DESK - tu inna reakcja co do free_B ?
+            }
+           //musisz rozbic by nie reag na requesty - przerzucic changeState w komunikacyjny 
+            while(free_B<ln) {//pozniej zadekl wylosuje ? a moze przesylac tam?
+                //zawieszam sie
+            }
+            changeClock(1);
+            changeState(DISCUSSION);
+        }
+        else if(stan==DISCUSSION){
+            //RELEASE_DESKS do wszystkich
+            changeClock(1);
+            //REQUEST_FOR_ROOM do wsz
+            //wstawiam do kolejki room_queue
+            changeClock(1);
+            changeState(WAITING_FOR_ROOM);
+        }
+        else if(stan==WAITING_FOR_ROOM){
+            //tak samo jak w WAITING_TO_DISCUSS
+        }
+        else if(stan==THE_BIG_LIE){
+            
+        }
+        else if(stan==WAITING_FOR_STARTING_FIELD){
+           
+        }
+        else if(stan==BIG_BOOM){
+            
+        }
+        else if(stan==WAITING_FOR_ONE_DESK){
+           
+        }
+        else if(stan==EXPLANATION){
+            //RELEASE_DESK do wsz
+            changeClock(1);
+            changeState(INIT);
+        }
+        
+    }
+    */
+     
 }

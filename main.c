@@ -58,7 +58,6 @@ void inicjuj(int *argc, char ***argv)
     MPI_Init_thread(argc, argv,MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
 
-
     /* Stworzenie typu */
     /* Poniższe (aż do MPI_Type_commit) potrzebne tylko, jeżeli
        brzydzimy się czymś w rodzaju MPI_Send(&typ, sizeof(pakiet_t), MPI_BYTE....
@@ -101,19 +100,18 @@ void finalizuj()
     MPI_Finalize();
 }
 
-
 /* opis patrz main.h */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    int freepkt=0;
-    if (pkt==0) { 
+    int freepkt=0;  //remove
+    if (pkt==0) {   //remove
         pkt = malloc(sizeof(packet_t)); 
         freepkt=1;
     }
     pkt->src = rank;
     pkt->ts = changeClock(1);
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    if (freepkt) free(pkt);
+    if (freepkt) free(pkt); //remove
 }
 
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
@@ -150,7 +148,7 @@ void changeTallow( int newTallow )
     pthread_mutex_unlock( &tallowMut );
 }
 //zasoby 
-void changeB( int newB )
+void changeB(int newB)
 {
     pthread_mutex_lock( &BMut );
     if (stan==InFinish) { 
@@ -161,7 +159,7 @@ void changeB( int newB )
     pthread_mutex_unlock( &BMut );
 }
 
-void changeK( int newK )
+void changeK(int newK)
 {
     pthread_mutex_lock( &KMut );
     if (stan==InFinish) { 
@@ -172,7 +170,7 @@ void changeK( int newK )
     pthread_mutex_unlock( &KMut );
 }
 
-void changeState( state_t newState )
+void changeState(state_t newState)
 {
     pthread_mutex_lock( &stateMut );
     if (stan==InFinish) { 
@@ -187,11 +185,12 @@ int main(int argc, char **argv)
 {
     /* Tworzenie wątków, inicjalizacja itp */
     inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
+
     tallow = 1000; // by było wiadomo ile jest łoju
     B = 7;
     K = 4;
+    
     mainLoop();          // w pliku "watek_glowny.c"
-
     finalizuj();
     return 0;
 }
