@@ -3,7 +3,6 @@
 
 void mainLoop()
 {
-    int ln = 7;
     while(TRUE){
         if(stan==INIT){
             debug("Wysyłam Request do wszystkich");

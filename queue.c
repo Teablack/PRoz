@@ -117,4 +117,5 @@ void queue_clear(process_queue_node** head){
         free(to_be_removed);
         to_be_removed = temp;
     }
+    *head = NULL;
 }

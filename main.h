@@ -18,27 +18,25 @@
 #define FALSE 0
 
 /* używane w wątku głównym, determinuje jak często i na jak długo zmieniają się stany */
-#define STATE_CHANGE_PROB 50
-#define SEC_IN_STATE 2
-
-#define ROOT 0
+//#define STATE_CHANGE_PROB 50
+//#define SEC_IN_STATE 2
+//#define ROOT 0
 
 /* stany procesu */
-//typedef enum {INIT, InMonitor, InSend, InFinish} state_t; 
 typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LIE, WAITING_FOR_STARTING_FIELD, BIG_BOOM, WAITING_FOR_ONE_DESK, EXPLANATION} state_t; 
 extern state_t stan;
 extern int rank;
 extern int size;
+extern int ln; //licznosc zesołu 
 
-/* Ile mamy łoju na składzie? */
-extern int tallow;
+/*Zasoby */
 extern int B;
 extern int K;
 
 /* stan globalny wykryty przez monitor */
-extern int globalState;
+//extern int globalState;
 /* ilu już odpowiedziało na GIVEMESTATE */
-extern int numberReceived;
+//extern int numberReceived;
 
 /* to może przeniesiemy do global... */
 typedef struct {
@@ -53,14 +51,6 @@ extern process_queue_node* desk_queue;
 extern process_queue_node* room_queue;
 extern process_queue_node* starting_field_queue;
 
-/* Typy wiadomości 
-#define FINISH 1
-#define TALLOWTRANSPORT 2
-#define INRUN 3
-#define INMONITOR 4
-#define GIVEMESTATE 5
-#define STATE 6
-*/
 /* Typy wiadomości */
 #define REQUEST_FOR_DESK 1
 #define REQUEST_FOR_ROOM 2

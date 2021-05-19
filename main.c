@@ -15,7 +15,7 @@
 int lclock;
 state_t stan=INIT;;
 volatile char end = FALSE;
-int size,rank, tallow, B, K; /* nie trzeba zerować, bo zmienna globalna statyczna */
+int size,rank, B, K, ln , free_B, free_K; /* nie trzeba zerować, bo zmienna globalna statyczna */
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom, threadMon;
 
@@ -138,16 +138,6 @@ int changeClock(int newClock){
     pthread_mutex_unlock( &callowMut );
     return lclock;
 }
-void changeTallow( int newTallow )
-{
-    pthread_mutex_lock( &tallowMut );
-    // if (stan==InFinish) { 
-	//     pthread_mutex_unlock( &tallowMut );
-    //     return;
-    // }
-    tallow += newTallow;
-    pthread_mutex_unlock( &tallowMut );
-}
 //zasoby 
 void changeB(int newB)
 {
@@ -156,7 +146,7 @@ void changeB(int newB)
 	//     pthread_mutex_unlock( &BMut );
     //     return;
     // }
-    B += newB;
+    free_B += newB;
     pthread_mutex_unlock( &BMut );
 }
 
@@ -167,7 +157,7 @@ void changeK(int newK)
 	//     pthread_mutex_unlock( &KMut );
     //     return;
     // }
-    K += newK;
+    free_K += newK;
     pthread_mutex_unlock( &KMut );
 }
 
@@ -187,35 +177,36 @@ int main(int argc, char **argv)
     /* Tworzenie wątków, inicjalizacja itp */
     inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
 
-    tallow = 1000; // by było wiadomo ile jest łoju
-    B = 7;
+    B = 10;
     K = 4;
+    srandom(rank);
+    ln = random()%5+2;
     
-    //mainLoop();          // w pliku "watek_glowny.c"
-    if(rank == 0){
-        process_queue_node* desk_queue = NULL;
+    mainLoop();          // w pliku "watek_glowny.c"
+    // if(rank == 0){
+    //     process_queue_node* desk_queue = NULL;
 
-        queue_add(&desk_queue,create_process_s(4,2,44));
-        queue_add(&desk_queue,create_process_s(1,2,4));
-        queue_add(&desk_queue,create_process_s(2,2,47));
-        queue_add(&desk_queue,create_process_s(3,1,45));
+    //     queue_add(&desk_queue,create_process_s(4,2,44));
+    //     queue_add(&desk_queue,create_process_s(1,2,4));
+    //     queue_add(&desk_queue,create_process_s(2,2,47));
+    //     queue_add(&desk_queue,create_process_s(3,1,45));
 
-        queue_print(&desk_queue);
-        int c = queue_before_me(&desk_queue, 4);
-        printf("for id 4: %d", c);
-        queue_remove(&desk_queue,3);
-        queue_remove(&desk_queue,5);
+    //     queue_print(&desk_queue);
+    //     int c = queue_before_me(&desk_queue, 4);
+    //     printf("for id 4: %d", c);
+    //     queue_remove(&desk_queue,3);
+    //     queue_remove(&desk_queue,5);
 
-        c = queue_before_me(&desk_queue, 4);
-        printf("for id 4: %d", c);
+    //     c = queue_before_me(&desk_queue, 4);
+    //     printf("for id 4: %d", c);
 
-        queue_print(&desk_queue);
+    //     queue_print(&desk_queue);
 
-        //queue_clear(&desk_queue);
+    //     //queue_clear(&desk_queue);
 
-        //queue_print(&desk_queue);
+    //     //queue_print(&desk_queue);
 
-    }
+    // }
     finalizuj();
     return 0;
 }
