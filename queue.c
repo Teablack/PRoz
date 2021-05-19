@@ -130,3 +130,15 @@ int queue_size(process_queue_node** head){
     }
     return sum;
 }
+
+int queue_my_ts(process_queue_node** head ,int id){
+    process_queue_node* current = *head;
+    while(current != NULL) {
+        if(current->proc->id != id) {
+            current = current->next;
+        } else {
+            return current->proc->ts;
+        }
+    }
+    return current->proc->ts;
+}

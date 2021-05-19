@@ -21,7 +21,6 @@ void mainLoop()
             changeClock(1);
             debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
-            sleep(1000);
         }
         else if(stan==WAITING_TO_DISCUSS){
             //EDIT algorytmu - rozbic na dwa stany
