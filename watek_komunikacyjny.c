@@ -8,42 +8,41 @@ void *startKomWatek(void *ptr)
     int is_message= FALSE;
     packet_t pakiet;
     /* Obrazuje pętlę odbierającą pakiety o różnych typach */
-    while (stan!=InFinish) {
+    while (TRUE) {
 	debug("czekam na recv");
         MPI_Recv(&pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  //tu typy wiadomosci
-        //EDIT: setClock 
         setClock(pakiet.ts+1);
         
-        switch(status.MPI_TAG){
-                case FINISH: 
-                        changeState(InFinish);
-                break;
-                case TALLOWTRANSPORT: 
-                        changeTallow( pakiet.data);
-                        debug("Dostałem wiadomość od %d z danymi %d",pakiet.src, pakiet.data);
-                break;
-                case GIVEMESTATE: 
-                        pakiet.data = tallow;
-                        sendPacket(&pakiet, ROOT, STATE);
-                        debug("Wysyłam mój stan do monitora: %d funtów łoju na składzie!", tallow);
-                break;
-                case STATE:
-                        numberReceived++;
-                        globalState += pakiet.data;
-                        if (numberReceived > size-1) {
-                                debug("W magazynach mamy %d funtów łoju.", globalState);
-                        } 
-                break;
-                case INMONITOR: 
-                        changeState( InMonitor );
-                        debug("Od tej chwili czekam na polecenia od monitora");
-                break;
-                case INRUN: 
-                        changeState( INIT );
-                        debug("Od tej chwili decyzję podejmuję autonomicznie i losowo");
-                break;
-                default:
-                break;
-        }
+        // switch(status.MPI_TAG){
+        //         case FINISH: 
+        //                 changeState(InFinish);
+        //         break;
+        //         case TALLOWTRANSPORT: 
+        //                 changeTallow( pakiet.data);
+        //                 debug("Dostałem wiadomość od %d z danymi %d",pakiet.src, pakiet.data);
+        //         break;
+        //         case GIVEMESTATE: 
+        //                 pakiet.data = tallow;
+        //                 sendPacket(&pakiet, ROOT, STATE);
+        //                 debug("Wysyłam mój stan do monitora: %d funtów łoju na składzie!", tallow);
+        //         break;
+        //         case STATE:
+        //                 numberReceived++;
+        //                 globalState += pakiet.data;
+        //                 if (numberReceived > size-1) {
+        //                         debug("W magazynach mamy %d funtów łoju.", globalState);
+        //                 } 
+        //         break;
+        //         case INMONITOR: 
+        //                 changeState( InMonitor );
+        //                 debug("Od tej chwili czekam na polecenia od monitora");
+        //         break;
+        //         case INRUN: 
+        //                 changeState( INIT );
+        //                 debug("Od tej chwili decyzję podejmuję autonomicznie i losowo");
+        //         break;
+        //         default:
+        //         break;
+        // }
     }
 }

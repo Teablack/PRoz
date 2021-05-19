@@ -1,6 +1,8 @@
 #include "main.h"
 #include "watek_komunikacyjny.h"
 #include "watek_glowny.h"
+#include "structs.h"
+#include "queue.h"
 //#include "monitor.h"
 /* wątki */
 #include <pthread.h>
@@ -11,8 +13,7 @@
 //#include <fcntl.h>
 
 int lclock;
-state_t stan=INIT;
-//EDIT: state_t stan=INIT;
+state_t stan=INIT;;
 volatile char end = FALSE;
 int size,rank, tallow, B, K; /* nie trzeba zerować, bo zmienna globalna statyczna */
 MPI_Datatype MPI_PAKIET_T;
@@ -117,10 +118,10 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
 int setClock(int newClock){
     pthread_mutex_lock( &callowMut );
-    if(stan == InFinish){
-        pthread_mutex_unlock( &callowMut );
-        return lclock;
-    }
+    // if(stan == InFinish){
+    //     pthread_mutex_unlock( &callowMut );
+    //     return lclock;
+    // }
     lclock = (lclock+1 > newClock)? (lclock+1):newClock;
     pthread_mutex_unlock( &callowMut );
     return lclock;
@@ -129,10 +130,10 @@ int setClock(int newClock){
 //zwykly clock+1
 int changeClock(int newClock){
     pthread_mutex_lock( &callowMut );
-    if(stan == InFinish){
-        pthread_mutex_unlock( &callowMut );
-        return lclock;
-    }
+    // if(stan == InFinish){
+    //     pthread_mutex_unlock( &callowMut );
+    //     return lclock;
+    // }
     lclock+=newClock;
     pthread_mutex_unlock( &callowMut );
     return lclock;
@@ -140,10 +141,10 @@ int changeClock(int newClock){
 void changeTallow( int newTallow )
 {
     pthread_mutex_lock( &tallowMut );
-    if (stan==InFinish) { 
-	    pthread_mutex_unlock( &tallowMut );
-        return;
-    }
+    // if (stan==InFinish) { 
+	//     pthread_mutex_unlock( &tallowMut );
+    //     return;
+    // }
     tallow += newTallow;
     pthread_mutex_unlock( &tallowMut );
 }
@@ -151,10 +152,10 @@ void changeTallow( int newTallow )
 void changeB(int newB)
 {
     pthread_mutex_lock( &BMut );
-    if (stan==InFinish) { 
-	    pthread_mutex_unlock( &BMut );
-        return;
-    }
+    // if (stan==InFinish) { 
+	//     pthread_mutex_unlock( &BMut );
+    //     return;
+    // }
     B += newB;
     pthread_mutex_unlock( &BMut );
 }
@@ -162,10 +163,10 @@ void changeB(int newB)
 void changeK(int newK)
 {
     pthread_mutex_lock( &KMut );
-    if (stan==InFinish) { 
-	    pthread_mutex_unlock( &KMut );
-        return;
-    }
+    // if (stan==InFinish) { 
+	//     pthread_mutex_unlock( &KMut );
+    //     return;
+    // }
     K += newK;
     pthread_mutex_unlock( &KMut );
 }
@@ -173,10 +174,10 @@ void changeK(int newK)
 void changeState(state_t newState)
 {
     pthread_mutex_lock( &stateMut );
-    if (stan==InFinish) { 
-	    pthread_mutex_unlock( &stateMut );
-        return;
-    }
+    // if (stan==InFinish) { 
+	//     pthread_mutex_unlock( &stateMut );
+    //     return;
+    // }
     stan = newState;
     pthread_mutex_unlock( &stateMut );
 }
@@ -192,6 +193,8 @@ int main(int argc, char **argv)
     
     mainLoop();          // w pliku "watek_glowny.c"
     finalizuj();
+
+    process_s* p = create_process_s(1,2,4);
+
     return 0;
 }
-

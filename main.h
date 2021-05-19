@@ -23,8 +23,8 @@
 #define ROOT 0
 
 /* stany procesu */
-typedef enum {INIT, InMonitor, InSend, InFinish} state_t; 
-//Edit: typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LIE, WAITING_FOR_STARTING_FIELD, BIG_BOOM, WAITING_FOR_ONE_DESK, EXPLANATION} state_t; 
+//typedef enum {INIT, InMonitor, InSend, InFinish} state_t; 
+typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LIE, WAITING_FOR_STARTING_FIELD, BIG_BOOM, WAITING_FOR_ONE_DESK, EXPLANATION} state_t; 
 extern state_t stan;
 extern int rank;
 extern int size;
@@ -43,21 +43,19 @@ extern int numberReceived;
 typedef struct {
     int ts;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
-
     int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
 } packet_t;
 extern MPI_Datatype MPI_PAKIET_T;
 
-/* Typy wiadomości */
+/* Typy wiadomości 
 #define FINISH 1
 #define TALLOWTRANSPORT 2
 #define INRUN 3
 #define INMONITOR 4
 #define GIVEMESTATE 5
 #define STATE 6
+*/
 
-/**
- * Edit:
 #define REQUEST_FOR_DESK 1
 #define REQUEST_FOR_ROOM 2
 #define REQUEST_FOR_STARTING_FIELD 3
@@ -67,7 +65,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define ACK_DESK 7
 #define ACK_ROOM 8
 #define ACK_STARTING_FIELD 9
- * /
+
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
    DEBUG, kiedy DEBUG niezdefiniowane działa jak instrukcja pusta 
