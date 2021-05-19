@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
+#include "structs.h"
 /* odkomentować, jeżeli się chce DEBUGI */
 //#define DEBUG 
 /* boolean */
@@ -47,6 +48,11 @@ typedef struct {
 } packet_t;
 extern MPI_Datatype MPI_PAKIET_T;
 
+/* kolejki*/
+extern process_queue_node* desk_queue;
+extern process_queue_node* room_queue;
+extern process_queue_node* starting_field_queue;
+
 /* Typy wiadomości 
 #define FINISH 1
 #define TALLOWTRANSPORT 2
@@ -55,7 +61,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define GIVEMESTATE 5
 #define STATE 6
 */
-
+/* Typy wiadomości */
 #define REQUEST_FOR_DESK 1
 #define REQUEST_FOR_ROOM 2
 #define REQUEST_FOR_STARTING_FIELD 3

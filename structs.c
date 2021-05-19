@@ -9,6 +9,6 @@ process_s* create_process_s(int id, int ts, int data) {
     process_s* p = malloc(sizeof(process_s));
     p->id = id;
     p->ts = ts;
-    p->ts = data;
+    p->data = data;
     return p;
 }

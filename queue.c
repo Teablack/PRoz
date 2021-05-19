@@ -28,7 +28,7 @@ void queue_add(process_queue_node** head, process_s* p) {
                 insert_before = insert_before->next;
                 cont = !is_less(node->proc, insert_before->proc);
             } else {
-                process_queue_node* last_node = insert_before; // |->|->|->null -> |->|->|->node->null
+                process_queue_node* last_node = insert_before; 
                 broke = 1;
 
                 last_node->next = node;
@@ -82,16 +82,39 @@ void queue_remove(process_queue_node** head, int id) {
     }
 }
 
-int queue_is_head(process_queue_node* head, int id) {
-}
-
 void queue_print(process_queue_node** head){
     if(*head == NULL) {
         return;
     }
     process_queue_node* current = *head;
     while(current != NULL) {
-            printf("id %d ts: %d data: %d", current->proc->id, current->proc->ts, current->proc->data);
+            printf("id %d ts: %d data: %d \n", current->proc->id, current->proc->ts, current->proc->data);
             current = current->next;
+    }
+}
+int queue_before_me(process_queue_node** head, int id){
+    int sum = 0;
+    if(*head == NULL) {
+        return sum ;
+    }
+    process_queue_node* current = *head;
+    while(current != NULL) {
+        if(current->proc->id != id) {
+            sum+=current->proc->data ;
+            current = current->next;
+        } else {
+            return sum;
+        }
+    }
+}
+void queue_clear(process_queue_node** head){
+     if(*head == NULL)
+        return;
+    process_queue_node* to_be_removed = *head;
+    while(to_be_removed != NULL) {
+        process_queue_node* temp = to_be_removed->next;
+        free(to_be_removed->proc);
+        free(to_be_removed);
+        to_be_removed = temp;
     }
 }

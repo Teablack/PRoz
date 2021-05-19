@@ -32,7 +32,7 @@ void mainLoop()
         }
         else if(stan==DISCUSSION){
             //RELEASE_DESKS do wszystkich
-            changeClock(1);
+            
             //REQUEST_FOR_ROOM do wsz
             //wstawiam do kolejki room_queue
             changeClock(1);
@@ -40,18 +40,24 @@ void mainLoop()
         }
         else if(stan==WAITING_FOR_ROOM){
             //tak samo jak w WAITING_TO_DISCUSS
+            changeClock(1);
+            changeState(THE_BIG_LIE);
         }
         else if(stan==THE_BIG_LIE){
-            
+            changeClock(1);
+            changeState(WAITING_FOR_STARTING_FIELD);
         }
         else if(stan==WAITING_FOR_STARTING_FIELD){
-           
+            changeClock(1);
+            changeState(BIG_BOOM);
         }
         else if(stan==BIG_BOOM){
-            
+            changeClock(1);
+            changeState(WAITING_FOR_ONE_DESK);
         }
         else if(stan==WAITING_FOR_ONE_DESK){
-           
+            changeClock(1);
+            changeState(EXPLANATION);
         }
         else if(stan==EXPLANATION){
             //RELEASE_DESK do wsz

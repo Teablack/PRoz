@@ -191,10 +191,31 @@ int main(int argc, char **argv)
     B = 7;
     K = 4;
     
-    mainLoop();          // w pliku "watek_glowny.c"
+    //mainLoop();          // w pliku "watek_glowny.c"
+    if(rank == 0){
+        process_queue_node* desk_queue = NULL;
+
+        queue_add(&desk_queue,create_process_s(4,2,44));
+        queue_add(&desk_queue,create_process_s(1,2,4));
+        queue_add(&desk_queue,create_process_s(2,2,47));
+        queue_add(&desk_queue,create_process_s(3,1,45));
+
+        queue_print(&desk_queue);
+        int c = queue_before_me(&desk_queue, 4);
+        printf("for id 4: %d", c);
+        queue_remove(&desk_queue,3);
+        queue_remove(&desk_queue,5);
+
+        c = queue_before_me(&desk_queue, 4);
+        printf("for id 4: %d", c);
+
+        queue_print(&desk_queue);
+
+        //queue_clear(&desk_queue);
+
+        //queue_print(&desk_queue);
+
+    }
     finalizuj();
-
-    process_s* p = create_process_s(1,2,4);
-
     return 0;
 }
