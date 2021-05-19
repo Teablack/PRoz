@@ -1,35 +1,44 @@
 #include "main.h"
 #include "watek_glowny.h"
+#include "structs.h"
+#include "queue.h"
 
 void mainLoop()
 {
     while(TRUE){
         if(stan==INIT){
-            debug("Wysyłam Request do wszystkich");
+            debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->ts = lclock;
+            pkt->src = rank;
+            pkt->data = ln;
+            queue_clear(&desk_queue);
+            queue_add(&desk_queue,create_process_s(lclock, rank, ln));
             for(int i=0;i<size;i++)
-                //sendPacket(ln, i, REQUEST_FOR_DESK);
-            //desk_queue.clear()
-            //desk_queue.add(my_el)
-            //int free_B=B //poki co lokalna 
+                sendPacket(pkt, i, REQUEST_FOR_DESK);
+            debug("Skonczylem wysylac");
+            free_B=B;
             changeClock(1);
             debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
+            sleep(1000);
         }
         else if(stan==WAITING_TO_DISCUSS){
             //EDIT algorytmu - rozbic na dwa stany
-            //while(desk_queue<size-1){
+            while(queue_size(&desk_queue)<size){
                 //tu chyba zawieszam się - muszę zasypiac ? czekam aż drugi wątek mnie obudzi??
                 //dalej w wątku komunikacyjnym:
                 //?odbieranie po jednej REQUEST_FOR_DESK lub ACK_DESK - tu inna reakcja co do free_B ?
-            //}
+            }
            //musisz rozbic by nie reag na requesty - przerzucic changeState w komunikacyjny 
-            //while(free_B<ln) {//pozniej zadekl wylosuje ? a moze przesylac tam?
+            while(free_B<ln) {//pozniej zadekl wylosuje ? a moze przesylac tam?
                 //zawieszam sie
-            //}
+            }
             changeClock(1);
             changeState(DISCUSSION);
         }
         else if(stan==DISCUSSION){
+            sleep(10000);
             //RELEASE_DESKS do wszystkich
             
             //REQUEST_FOR_ROOM do wsz

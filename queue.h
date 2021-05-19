@@ -8,5 +8,6 @@ void queue_remove(process_queue_node**, int);
 void queue_print(process_queue_node**);
 int queue_before_me(process_queue_node**, int);
 void queue_clear(process_queue_node**);
+int queue_size(process_queue_node**);
 
 #endif 

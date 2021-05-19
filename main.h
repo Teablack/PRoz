@@ -32,6 +32,8 @@ extern int ln; //licznosc zesołu
 /*Zasoby */
 extern int B;
 extern int K;
+extern int free_B;
+extern int free_K;
 
 /* stan globalny wykryty przez monitor */
 //extern int globalState;

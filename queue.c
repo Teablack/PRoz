@@ -108,7 +108,7 @@ int queue_before_me(process_queue_node** head, int id){
     }
 }
 void queue_clear(process_queue_node** head){
-     if(*head == NULL)
+    if(*head == NULL)
         return;
     process_queue_node* to_be_removed = *head;
     while(to_be_removed != NULL) {
@@ -118,4 +118,15 @@ void queue_clear(process_queue_node** head){
         to_be_removed = temp;
     }
     *head = NULL;
+}
+int queue_size(process_queue_node** head){
+    int sum = 0;
+    if(*head == NULL)
+        return 0 ;
+    process_queue_node* current = *head;
+    while(current != NULL) {
+        sum++;
+        current = current->next;
+    }
+    return sum;
 }

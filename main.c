@@ -26,6 +26,12 @@ pthread_mutex_t callowMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t BMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t KMut = PTHREAD_MUTEX_INITIALIZER;
 
+process_queue_node* desk_queue = NULL;
+process_queue_node* room_queue = NULL;
+process_queue_node* starting_field_queue = NULL;
+
+
+
 void check_thread_support(int provided)
 {
 
@@ -185,20 +191,18 @@ int main(int argc, char **argv)
     mainLoop();          // w pliku "watek_glowny.c"
     // if(rank == 0){
     //     process_queue_node* desk_queue = NULL;
-
+    //     int q_size = queue_size(&desk_queue);
+    //     printf("size: %d", q_size);
     //     queue_add(&desk_queue,create_process_s(4,2,44));
     //     queue_add(&desk_queue,create_process_s(1,2,4));
     //     queue_add(&desk_queue,create_process_s(2,2,47));
     //     queue_add(&desk_queue,create_process_s(3,1,45));
 
     //     queue_print(&desk_queue);
-    //     int c = queue_before_me(&desk_queue, 4);
-    //     printf("for id 4: %d", c);
+    //     q_size = queue_size(&desk_queue);
+    //     printf("size: %d", q_size);
     //     queue_remove(&desk_queue,3);
     //     queue_remove(&desk_queue,5);
-
-    //     c = queue_before_me(&desk_queue, 4);
-    //     printf("for id 4: %d", c);
 
     //     queue_print(&desk_queue);
 
