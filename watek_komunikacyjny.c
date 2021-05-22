@@ -26,19 +26,34 @@ void *startKomWatek(void *ptr)
         MPI_Recv(&pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  //tu typy wiadomosci
         setClock(pakiet.ts+1);
         switch(status.MPI_TAG){
+
             case REQUEST_FOR_DESK: 
+
                 if(stan == WAITING_TO_DISCUSS){
                     debug("Dostałem REQUEST OD %d", pakiet.src);
-                    queue_add(&desk_queue,create_process_s(pakiet.src,pakiet.ts, pakiet.data));
+                    desk_queue_replace(pakiet.src, pakiet.ts, pakiet.data);
+
                     packet_t *pkt = malloc(sizeof(packet_t));
-                    pkt->ts = queue_my_ts(&desk_queue,rank);
-                    pkt->src = rank;
+                    pkt->q_ts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                     pkt->data = ln;
+                    
                     debug("Wysyłam ACK do %d", pakiet.src);
-                    sendPacket(pkt, rank, ACK_DESK);
+                    sendPacket(pkt, pakiet.src, ACK_DESK);
                     debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
-                break;
+            break;
+            case ACK_DESK: 
+                if(stan == WAITING_TO_DISCUSS){
+                    debug("Dostałem ACK OD %d", pakiet.src);
+                    desk_queue_replace(pakiet.src,pakiet.q_ts, pakiet.data);
+                }
+            break;
+            case RELEASE_DESK: 
+                if(stan == WAITING_TO_DISCUSS){
+                    debug("Dostałem RELEASE OD %d", pakiet.src);
+                    desk_queue_replace(pakiet.src,pakiet.ts, pakiet.data);
+                }
+            break;
                 default:
                 break;
         }

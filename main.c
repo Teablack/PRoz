@@ -3,8 +3,6 @@
 #include "watek_glowny.h"
 #include "structs.h"
 #include "queue.h"
-//#include "monitor.h"
-/* wątki */
 #include <pthread.h>
 
 /* sem_init sem_destroy sem_post sem_wait */
@@ -15,22 +13,20 @@
 int lclock;
 state_t stan=INIT;;
 volatile char end = FALSE;
-int size,rank, B, K, ln , free_B, free_K; /* nie trzeba zerować, bo zmienna globalna statyczna */
+int size,rank, B, K, ln; /* nie trzeba zerować, bo zmienna globalna statyczna */
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom, threadMon;
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t tallowMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t callowMut = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_mutex_t BMut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t KMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t desk_mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t room_mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t starting_field_mut = PTHREAD_MUTEX_INITIALIZER;
 
 process_queue_node* desk_queue = NULL;
 process_queue_node* room_queue = NULL;
 process_queue_node* starting_field_queue = NULL;
-
-
 
 void check_thread_support(int provided)
 {
@@ -110,24 +106,20 @@ void finalizuj()
 /* opis patrz main.h */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    int freepkt=0;  //remove
-    if (pkt==0) {   //remove
+    int freepkt=0;  
+    if (pkt==0) {
         pkt = malloc(sizeof(packet_t)); 
         freepkt=1;
     }
     pkt->src = rank;
     pkt->ts = changeClock(1);
-    MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    if (freepkt) free(pkt); //remove
+    MPI_Send(pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+    if(freepkt) free(pkt); 
 }
 
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
 int setClock(int newClock){
     pthread_mutex_lock( &callowMut );
-    // if(stan == InFinish){
-    //     pthread_mutex_unlock( &callowMut );
-    //     return lclock;
-    // }
     lclock = (lclock+1 > newClock)? (lclock+1):newClock;
     pthread_mutex_unlock( &callowMut );
     return lclock;
@@ -144,36 +136,11 @@ int changeClock(int newClock){
     pthread_mutex_unlock( &callowMut );
     return lclock;
 }
-//zasoby 
-void changeB(int newB)
-{
-    pthread_mutex_lock( &BMut );
-    // if (stan==InFinish) { 
-	//     pthread_mutex_unlock( &BMut );
-    //     return;
-    // }
-    free_B += newB;
-    pthread_mutex_unlock( &BMut );
-}
-
-void changeK(int newK)
-{
-    pthread_mutex_lock( &KMut );
-    // if (stan==InFinish) { 
-	//     pthread_mutex_unlock( &KMut );
-    //     return;
-    // }
-    free_K += newK;
-    pthread_mutex_unlock( &KMut );
-}
 
 void changeState(state_t newState)
 {
+    changeClock(1);
     pthread_mutex_lock( &stateMut );
-    // if (stan==InFinish) { 
-	//     pthread_mutex_unlock( &stateMut );
-    //     return;
-    // }
     stan = newState;
     pthread_mutex_unlock( &stateMut );
 }
@@ -213,4 +180,47 @@ int main(int argc, char **argv)
     // }
     finalizuj();
     return 0;
+}
+
+void desk_queue_add(int rank, int lclock, int ln){
+    pthread_mutex_lock(&desk_mut);
+    queue_add(&desk_queue,create_process_s(rank, lclock, ln));
+    pthread_mutex_unlock(&desk_mut);
+}
+
+void desk_queue_replace(int rank, int lclock, int ln){
+    pthread_mutex_lock(&desk_mut);
+    queue_remove(&desk_queue,rank);
+    queue_add(&desk_queue,create_process_s(rank, lclock, ln));
+    pthread_mutex_unlock(&desk_mut);
+}
+void desk_queue_remove(int rank){
+    pthread_mutex_lock(&desk_mut);
+    queue_remove(&desk_queue,rank);
+    pthread_mutex_unlock(&desk_mut);
+}
+
+int desk_queue_free(){
+    pthread_mutex_lock(&desk_mut);
+    int n = B - queue_before_me(&desk_queue, rank);
+    pthread_mutex_unlock(&desk_mut);
+    return n;
+}
+
+int desk_queue_my_ts(){
+    pthread_mutex_lock(&desk_mut);
+    int n = queue_my_ts(&desk_queue,rank);
+    pthread_mutex_unlock(&desk_mut);
+    return n;
+}
+
+void desk_queue_clear(){
+    pthread_mutex_lock(&desk_mut);
+    queue_clear(&desk_queue);
+    pthread_mutex_unlock(&desk_mut);
+}
+void desk_queue_print(){
+    pthread_mutex_lock(&desk_mut);
+    queue_print(&desk_queue);
+    pthread_mutex_unlock(&desk_mut);
 }

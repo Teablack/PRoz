@@ -17,11 +17,6 @@
 #define TRUE 1
 #define FALSE 0
 
-/* używane w wątku głównym, determinuje jak często i na jak długo zmieniają się stany */
-//#define STATE_CHANGE_PROB 50
-//#define SEC_IN_STATE 2
-//#define ROOT 0
-
 /* stany procesu */
 typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LIE, WAITING_FOR_STARTING_FIELD, BIG_BOOM, WAITING_FOR_ONE_DESK, EXPLANATION} state_t; 
 extern state_t stan;
@@ -32,8 +27,6 @@ extern int ln; //licznosc zesołu
 /*Zasoby */
 extern int B;
 extern int K;
-extern int free_B;
-extern int free_K;
 
 /* stan globalny wykryty przez monitor */
 //extern int globalState;
@@ -45,6 +38,7 @@ typedef struct {
     int ts;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
     int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
+    int q_ts;   /* uzywany tylko w ACK*/
 } packet_t;
 extern MPI_Datatype MPI_PAKIET_T;
 
@@ -109,9 +103,14 @@ extern int lclock;
 /* wysyłanie pakietu, skrót: wskaźnik do pakietu (0 oznacza stwórz pusty pakiet), do kogo, z jakim typem */
 void sendPacket(packet_t *pkt, int destination, int tag);
 void changeState(state_t);
-void changeTallow(int);
-void changeB(int);
-void changeK(int);
 int changeClock(int);
 int setClock(int);
+
+void desk_queue_add(int, int, int);
+void desk_queue_replace(int, int, int);
+void desk_queue_remove(int);
+int desk_queue_free();
+int desk_queue_my_ts();
+void desk_queue_clear();
+void desk_queue_print();
 #endif

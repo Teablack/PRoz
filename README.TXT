@@ -15,7 +15,7 @@ Zadaniem początkowym do wykonania jest wprowadzenie zegarów Lamporta:
 1. Dodać zmienną globalną reprezentującą zegar skalarny Lamporta ("globalną" w sensie języka C; faktycznie jest to zegar lokalny
                                                                    dla każdego procesu)
 
-2. Zmodyfikować makra println (w main.h), by wyświetlały zegar Lamporta 
+2. Zmodyfikować makra println (w main.h), by wyświetlały zegar Lamporta. 
 
 3. Zwiększanie zegara przy sendPacket (w init.c) oraz max(bieżący, pakiet)+1 przy odbieraniu (w wątku komunikacyjnym comFunc w main.c)
 

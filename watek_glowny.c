@@ -8,32 +8,33 @@ void mainLoop()
     while(TRUE){
         if(stan==INIT){
             debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
+
             packet_t *pkt = malloc(sizeof(packet_t));
-            pkt->ts = lclock;
-            pkt->src = rank;
             pkt->data = ln;
-            queue_clear(&desk_queue);
-            queue_add(&desk_queue,create_process_s(lclock, rank, ln));
-            for(int i=0;i<size;i++)
-                sendPacket(pkt, i, REQUEST_FOR_DESK);
+
+            desk_queue_clear();
+            desk_queue_add(rank, lclock, ln);
+
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, REQUEST_FOR_DESK);
+            }
+
             debug("Skonczylem wysylac");
-            free_B=B;
-            changeClock(1);
+           
             debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
         }
-        else if(stan==WAITING_TO_DISCUSS){
-            //EDIT algorytmu - rozbic na dwa stany
-            while(queue_size(&desk_queue)<size){
-                //tu chyba zawieszam się - muszę zasypiac ? czekam aż drugi wątek mnie obudzi??
-                //dalej w wątku komunikacyjnym:
-                //?odbieranie po jednej REQUEST_FOR_DESK lub ACK_DESK - tu inna reakcja co do free_B ?
+        else if(stan==WAITING_TO_DISCUSS){   
+            while(queue_size(&desk_queue)<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
+               //czekam aż drugi wątek mnie obudzi?
             }
-           //musisz rozbic by nie reag na requesty - przerzucic changeState w komunikacyjny 
-            while(free_B<ln) {//pozniej zadekl wylosuje ? a moze przesylac tam?
-                //zawieszam sie
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
+            desk_queue_print();
+            while(desk_queue_free()<ln) {
+                //czekam aż drugi wątek mnie obudzi?
             }
-            changeClock(1);
+            debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
             changeState(DISCUSSION);
         }
         else if(stan==DISCUSSION){
