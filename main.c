@@ -13,7 +13,7 @@
 int lclock;
 state_t stan=INIT;;
 volatile char end = FALSE;
-int size,rank, B, K, ln; /* nie trzeba zerować, bo zmienna globalna statyczna */
+int size,rank, B, K, ln, F; /* nie trzeba zerować, bo zmienna globalna statyczna */
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom, threadMon;
 
@@ -128,10 +128,6 @@ int setClock(int newClock){
 //zwykly clock+1
 int changeClock(int newClock){
     pthread_mutex_lock( &callowMut );
-    // if(stan == InFinish){
-    //     pthread_mutex_unlock( &callowMut );
-    //     return lclock;
-    // }
     lclock+=newClock;
     pthread_mutex_unlock( &callowMut );
     return lclock;
@@ -152,51 +148,31 @@ int main(int argc, char **argv)
 
     B = 10;
     K = 4;
+    F = 1;
     srandom(rank);
     ln = random()%5+2;
     
     mainLoop();          // w pliku "watek_glowny.c"
-    // if(rank == 0){
-    //     process_queue_node* desk_queue = NULL;
-    //     int q_size = queue_size(&desk_queue);
-    //     printf("size: %d", q_size);
-    //     queue_add(&desk_queue,create_process_s(4,2,44));
-    //     queue_add(&desk_queue,create_process_s(1,2,4));
-    //     queue_add(&desk_queue,create_process_s(2,2,47));
-    //     queue_add(&desk_queue,create_process_s(3,1,45));
-
-    //     queue_print(&desk_queue);
-    //     q_size = queue_size(&desk_queue);
-    //     printf("size: %d", q_size);
-    //     queue_remove(&desk_queue,3);
-    //     queue_remove(&desk_queue,5);
-
-    //     queue_print(&desk_queue);
-
-    //     //queue_clear(&desk_queue);
-
-    //     //queue_print(&desk_queue);
-
-    // }
+    
     finalizuj();
     return 0;
 }
 
-void desk_queue_add(int rank, int lclock, int ln){
+void desk_queue_add(int id, int time, int data){
     pthread_mutex_lock(&desk_mut);
-    queue_add(&desk_queue,create_process_s(rank, lclock, ln));
+    queue_add(&desk_queue,create_process_s(id, time, data));
     pthread_mutex_unlock(&desk_mut);
 }
 
-void desk_queue_replace(int rank, int lclock, int ln){
+void desk_queue_replace(int id, int time, int data){
     pthread_mutex_lock(&desk_mut);
-    queue_remove(&desk_queue,rank);
-    queue_add(&desk_queue,create_process_s(rank, lclock, ln));
+    queue_remove(&desk_queue,id);
+    queue_add(&desk_queue,create_process_s(id, time, data));
     pthread_mutex_unlock(&desk_mut);
 }
-void desk_queue_remove(int rank){
+void desk_queue_remove(int id){
     pthread_mutex_lock(&desk_mut);
-    queue_remove(&desk_queue,rank);
+    queue_remove(&desk_queue,id);
     pthread_mutex_unlock(&desk_mut);
 }
 
@@ -223,4 +199,65 @@ void desk_queue_print(){
     pthread_mutex_lock(&desk_mut);
     queue_print(&desk_queue);
     pthread_mutex_unlock(&desk_mut);
+}
+
+int desk_queue_size(){
+    int n = 0;
+    pthread_mutex_lock(&desk_mut);
+    n = queue_size(&desk_queue);
+    pthread_mutex_unlock(&desk_mut);
+    return n;
+}
+
+//ROOM
+
+void room_queue_add(int id, int time, int data){
+    pthread_mutex_lock(&room_mut);
+    queue_add(&room_queue,create_process_s(id, time, data));
+    pthread_mutex_unlock(&room_mut);
+}
+
+void room_queue_replace(int id, int time, int data){
+    pthread_mutex_lock(&room_mut);
+    queue_remove(&room_queue,id);
+    queue_add(&room_queue,create_process_s(id, time, data));
+    pthread_mutex_unlock(&room_mut);
+}
+void room_queue_remove(int id){
+    pthread_mutex_lock(&room_mut);
+    queue_remove(&room_queue,id);
+    pthread_mutex_unlock(&room_mut);
+}
+
+int room_queue_free(){
+    pthread_mutex_lock(&room_mut);
+    int n = B - queue_before_me(&room_queue, rank);
+    pthread_mutex_unlock(&room_mut);
+    return n;
+}
+
+int room_queue_my_ts(){
+    pthread_mutex_lock(&room_mut);
+    int n = queue_my_ts(&room_queue,rank);
+    pthread_mutex_unlock(&room_mut);
+    return n;
+}
+
+void room_queue_clear(){
+    pthread_mutex_lock(&room_mut);
+    queue_clear(&room_queue);
+    pthread_mutex_unlock(&room_mut);
+}
+void room_queue_print(){
+    pthread_mutex_lock(&room_mut);
+    queue_print(&room_queue);
+    pthread_mutex_unlock(&room_mut);
+}
+
+int room_queue_size(){
+    pthread_mutex_lock(&room_mut);
+    int n = 0;
+    n = queue_size(&room_queue);
+    pthread_mutex_unlock(&room_mut);
+    return n;
 }

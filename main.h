@@ -27,6 +27,7 @@ extern int ln; //licznosc zesołu
 /*Zasoby */
 extern int B;
 extern int K;
+extern int F;
 
 /* stan globalny wykryty przez monitor */
 //extern int globalState;
@@ -38,7 +39,7 @@ typedef struct {
     int ts;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
     int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
-    int q_ts;   /* uzywany tylko w ACK*/
+    int qts;   /* uzywany tylko w ACK [ jednak nie tylko ]*/
 } packet_t;
 extern MPI_Datatype MPI_PAKIET_T;
 
@@ -113,4 +114,14 @@ int desk_queue_free();
 int desk_queue_my_ts();
 void desk_queue_clear();
 void desk_queue_print();
+int desk_queue_size();
+
+void room_queue_add(int, int, int);
+void room_queue_replace(int, int, int);
+void room_queue_remove(int);
+int room_queue_free();
+int room_queue_my_ts();
+void room_queue_clear();
+void room_queue_print();
+int room_queue_size();
 #endif
