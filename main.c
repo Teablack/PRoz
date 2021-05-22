@@ -74,7 +74,7 @@ void inicjuj(int *argc, char ***argv)
     offsets[0] = offsetof(packet_t, ts);
     offsets[1] = offsetof(packet_t, src);
     offsets[2] = offsetof(packet_t, data);
-    offsets[2] = offsetof(packet_t, qts);
+    offsets[3] = offsetof(packet_t, qts);
 
     MPI_Type_create_struct(nitems, blocklengths, offsets, typy, &MPI_PAKIET_T);
     MPI_Type_commit(&MPI_PAKIET_T);
@@ -120,17 +120,17 @@ void sendPacket(packet_t *pkt, int destination, int tag)
 
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
 int setClock(int newClock){
-    pthread_mutex_lock( &callowMut );
+    pthread_mutex_lock(&callowMut);
     lclock = (lclock+1 > newClock)? (lclock+1):newClock;
-    pthread_mutex_unlock( &callowMut );
+    pthread_mutex_unlock(&callowMut);
     return lclock;
 }
 
 //zwykly clock+1
 int changeClock(int newClock){
-    pthread_mutex_lock( &callowMut );
+    pthread_mutex_lock(&callowMut);
     lclock+=newClock;
-    pthread_mutex_unlock( &callowMut );
+    pthread_mutex_unlock(&callowMut);
     return lclock;
 }
 
@@ -232,7 +232,7 @@ void room_queue_remove(int id){
 
 int room_queue_free(){
     pthread_mutex_lock(&room_mut);
-    int n = B - queue_before_me(&room_queue, rank);
+    int n = K - queue_before_me(&room_queue, rank);
     pthread_mutex_unlock(&room_mut);
     return n;
 }
