@@ -30,81 +30,76 @@ void *startKomWatek(void *ptr)
             case REQUEST_FOR_DESK: 
 
                 if(stan == WAITING_TO_DISCUSS){
-                    //sleep(100);
-                    //debug("Dostałem REQUEST OD %d", pakiet.src);
+                
+                    debug("Dostałem REQUEST OD %d", pakiet.src);
                     desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
                     
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                     pkt->data = ln;
                     
-                    //debug("Wysyłam ACK do %d", pakiet.src);
+                    debug("Wysyłam ACK do %d", pakiet.src);
                     sendPacket(pkt, pakiet.src, ACK_DESK);
-                    //debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
                 else if(stan == WAITING_FOR_ROOM){
-                    //sleep(100);
-                    //debug("Dostałem REQUEST OD %d", pakiet.src);
-                    //debug("Wysyłam ACK do %d", pakiet.src);
+                    debug("Dostałem REQUEST OD %d", pakiet.src);
+                    debug("Wysyłam ACK do %d", pakiet.src);
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                     pkt->qts = lclock;
                     sendPacket(pkt, pakiet.src, ACK_DESK);
-                    //debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
             break;
             case ACK_DESK: 
-                //sleep(100);
                 if(stan == WAITING_TO_DISCUSS){
-                    //debug("Dostałem ACK OD %d", pakiet.src);
+                    debug("Dostałem ACK OD %d", pakiet.src);
                     desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
-                    //desk_queue_print();
                 }
             break;
             case RELEASE_DESK: 
-                //sleep(100);
+
                 if(stan == WAITING_TO_DISCUSS){
-                    //debug("Dostałem RELEASE OD %d", pakiet.src);
+                    debug("Dostałem RELEASE OD %d", pakiet.src);
                     desk_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
-                    //desk_queue_print();
                 }
             break;
             case REQUEST_FOR_ROOM: 
-                //sleep(100);
+                
                 if(stan == WAITING_TO_DISCUSS){
                     debug("Dostałem REQUEST FOR ROOM OD %d w czasie %d ze zn cz %d ", pakiet.src, pakiet.ts, pakiet.qts);
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                     pkt->qts = lclock;
                     sendPacket(pkt, pakiet.src, ACK_ROOM);
-                    //debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
                 else if(stan == WAITING_FOR_ROOM){
-                    //sleep(100);
+                    
                     debug("Dostałem REQUEST FOR ROOM OD %d w czasie %d ze zn cz %d", pakiet.src, pakiet.ts, pakiet.qts);
                     room_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
-                    room_queue_print();
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->qts = room_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                     pkt->data = 1;
                     
                     debug("Wysyłam ACK ROOM do %d", pakiet.src);
                     sendPacket(pkt, pakiet.src, ACK_ROOM);
-                    //debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
             break;
             case ACK_ROOM: 
                 if(stan == WAITING_FOR_ROOM){
                     debug("Dostałem ACK ROOM OD %d", pakiet.src);
                     room_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
-                    room_queue_print();
+                    
                 }
             break;
             case RELEASE_ROOM: 
                 if(stan == WAITING_FOR_ROOM){
                     debug("Dostałem RELEASE ROOM OD %d", pakiet.src);
                     room_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
-                    room_queue_print();
+                   
                 }
             break;
             case REQUEST_FOR_STARTING_FIELD: 

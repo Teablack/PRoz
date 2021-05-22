@@ -7,7 +7,7 @@ void mainLoop()
 {
     while(TRUE){
         if(stan==INIT){
-            //debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
+            debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
 
             packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = ln;
@@ -15,24 +15,24 @@ void mainLoop()
 
             desk_queue_clear();
             desk_queue_add(rank, lclock, ln);
-            //desk_queue_print();
+        
 
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, REQUEST_FOR_DESK);
             }
 
-            //debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac");
            
-            //debug("Zmieniam stan na WAITING_TO_DISCUSS");
+            debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
         }
         else if(stan==WAITING_TO_DISCUSS){   
             while(desk_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
                //czekam aż drugi wątek mnie obudzi?
             }
-            // debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
-            // desk_queue_print();
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
+            desk_queue_print();
             while(desk_queue_free()<ln) {
                 //czekam aż drugi wątek mnie obudzi?
             }
@@ -54,12 +54,10 @@ void mainLoop()
 
             room_queue_clear();
             room_queue_add(rank, lclock, 1);
-            room_queue_print();
-            debug("!!!!!!Wysyłam REQUEST o przydział sali z zn czas %d ", lclock);
+            
             packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt2->data = 1;
             pkt2->qts = lclock;
-            debug("wartosc pkt2->qts %d", pkt2->qts);
             
             for(int i=0;i<size;i++){
                 if (i!=rank)
@@ -76,7 +74,6 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
-
             room_queue_print();
             
             while(room_queue_free()<1) {
