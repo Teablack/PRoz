@@ -98,7 +98,7 @@ void mainLoop()
             field_queue_clear();
             field_queue_add(rank, lclock, 1);
 
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -140,7 +140,7 @@ void mainLoop()
             field_queue_clear();
             field_queue_add(rank, lclock, 1);
 
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
