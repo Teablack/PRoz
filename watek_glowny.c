@@ -42,13 +42,13 @@ void mainLoop()
         }
         else if(stan==DISCUSSION){
 
-            packet_t *pkt1 = malloc(sizeof(packet_t));
-            pkt1->data = ln;
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = ln;
         
-            debug("Wysyłam RELEASE", ln);
+            debug("Wysyłam RELEASE");
             for(int i=0;i<size;i++){
                 if (i!=rank)
-                    sendPacket(pkt1, i, RELEASE_DESK);
+                    sendPacket(pkt, i, RELEASE_DESK);
             }
             debug("Skonczylem wysylac");
 
@@ -80,50 +80,107 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan THE_BIG_LIE)");
-            sleep(500000);
-            //changeState(THE_BIG_LIE);
+            //sleep(500000);
+            changeState(THE_BIG_LIE);
         }
         else if(stan==THE_BIG_LIE){
+
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = 0;
+        
+            debug("Wysyłam RELEASE");
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, RELEASE_ROOM);
+            }
+            debug("Skonczylem wysylac");
+
+            field_queue_clear();
+            field_queue_add(rank, lclock, 1);
+
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = 1;
+            pkt->qts = lclock;
             
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, REQUEST_FOR_STARTING_FIELD);
+            }
+            debug("Skonczylem wysylac");
+            debug("Zmieniam stan na WAITING_FOR_STARTING_FIELD");
+
             changeState(WAITING_FOR_STARTING_FIELD);
         }
         else if(stan==WAITING_FOR_STARTING_FIELD){
             
+            while(field_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
+               //czekam aż drugi wątek mnie obudzi?
+            }
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
+            field_queue_print();
+            
+            while(field_queue_free()<1) {
+                //czekam aż drugi wątek mnie obudzi?
+            }
+            debug("Wchodze do sekcji krytycznej (stan BIG_BOOM)");
+            //sleep(500000);
             changeState(BIG_BOOM);
         }
         else if(stan==BIG_BOOM){
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = 0;
+        
+            debug("Wysyłam RELEASE");
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, RELEASE_ROOM);
+            }
+            debug("Skonczylem wysylac");
+
+            field_queue_clear();
+            field_queue_add(rank, lclock, 1);
+
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = 1;
+            pkt->qts = lclock;
             
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, REQUEST_FOR_DESK);
+            }
+            debug("Skonczylem wysylac");
+            debug("Zmieniam stan na WAITING_FOR_ONE_DESK");
+
             changeState(WAITING_FOR_ONE_DESK);
         }
         else if(stan==WAITING_FOR_ONE_DESK){
+            while(desk_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
+               //czekam aż drugi wątek mnie obudzi?
+            }
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
+            desk_queue_print();
             
+            while(desk_queue_free()<1) {
+                //czekam aż drugi wątek mnie obudzi?
+            }
+            debug("Wchodze do sekcji krytycznej (stan EXPLANATION)");
+            //sleep(500000);
             changeState(EXPLANATION);
         }
         else if(stan==EXPLANATION){
-            //RELEASE_DESK do wsz
             
+            packet_t *pkt = malloc(sizeof(packet_t));
+            pkt->data = 0;
+        
+            debug("Wysyłam RELEASE");
+            for(int i=0;i<size;i++){
+                if (i!=rank)
+                    sendPacket(pkt, i, RELEASE_STARTING_FIELD);
+            }
+            debug("Skonczylem wysylac");
+            debug("Zmieniam stan na INIT");
             changeState(INIT);
         }
         
     }
-    // srandom(rank);
-    // while (stan != InFinish) {
-    //     int perc = random()%100; 
-
-    //     if (perc<STATE_CHANGE_PROB) {
-    //         if (stan==INIT) {
-    //             debug("Zmieniam stan na wysyłanie");
-    //             changeState( InSend );
-    //             packet_t *pkt = malloc(sizeof(packet_t));
-    //             pkt->data = perc;
-    //             changeTallow( -perc);
-    //             sleep( SEC_IN_STATE); // to nam zasymuluje, że wiadomość trochę leci w kanale
-    //                                   // bez tego algorytm formalnie błędny za każdym razem dawałby poprawny wynik
-    //             sendPacket( pkt, (rank+1)%size,TALLOWTRANSPORT);
-    //             changeState( INIT );
-    //             debug("Skończyłem wysyłać");
-    //         } 
-    //     }
-    //     sleep(SEC_IN_STATE);
-    //}   
 }

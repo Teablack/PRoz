@@ -42,7 +42,10 @@ void *startKomWatek(void *ptr)
                     sendPacket(pkt, pakiet.src, ACK_DESK);
                     debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                 }
-                else if(stan == WAITING_FOR_ROOM){
+                else if((stan == WAITING_FOR_ROOM) 
+                || (stan == WAITING_FOR_STARTING_FIELD)
+                || (stan == WAITING_FOR_ONE_DESK)
+                ){
                     debug("Dostałem REQUEST OD %d", pakiet.src);
                     debug("Wysyłam ACK do %d", pakiet.src);
                     packet_t *pkt = malloc(sizeof(packet_t));
@@ -67,7 +70,10 @@ void *startKomWatek(void *ptr)
             break;
             case REQUEST_FOR_ROOM: 
                 
-                if(stan == WAITING_TO_DISCUSS){
+                if((stan == WAITING_TO_DISCUSS)
+                || (stan == WAITING_FOR_STARTING_FIELD)
+                || (stan == WAITING_FOR_ONE_DESK)
+                ){
                     debug("Dostałem REQUEST FOR ROOM OD %d w czasie %d ze zn cz %d ", pakiet.src, pakiet.ts, pakiet.qts);
                     packet_t *pkt = malloc(sizeof(packet_t));
                     pkt->data = 0;      //nie potrzebuje biurek w tym stanie
@@ -103,13 +109,44 @@ void *startKomWatek(void *ptr)
                 }
             break;
             case REQUEST_FOR_STARTING_FIELD: 
-    
+                if(stan == WAITING_FOR_STARTING_FIELD){
+                
+                    debug("Dostałem REQUEST OD %d", pakiet.src);
+                    field_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
+                    
+                    packet_t *pkt = malloc(sizeof(packet_t));
+                    pkt->qts = field_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
+                    pkt->data = 1;
+                    
+                    debug("Wysyłam ACK do %d", pakiet.src);
+                    sendPacket(pkt, pakiet.src, ACK_STARTING_FIELD);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                }
+                else if((stan == WAITING_FOR_ROOM)
+                || (stan == WAITING_FOR_ONE_DESK)
+                || (stan == WAITING_TO_DISCUSS)
+                ){
+                    debug("Dostałem REQUEST FOR START FIELD OD %d w czasie %d ze zn cz %d ", pakiet.src, pakiet.ts, pakiet.qts);
+                    packet_t *pkt = malloc(sizeof(packet_t));
+                    pkt->data = 0;      //nie potrzebuje biurek w tym stanie
+                    pkt->qts = lclock;
+                    sendPacket(pkt, pakiet.src, ACK_STARTING_FIELD);
+                    debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                }
             break;
             case ACK_STARTING_FIELD: 
-    
+                 if(stan == WAITING_FOR_STARTING_FIELD){
+                    debug("Dostałem ACK FIELD %d", pakiet.src);
+                    field_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
+                    
+                }
             break;
             case RELEASE_STARTING_FIELD: 
-    
+                if(stan == WAITING_FOR_STARTING_FIELD){
+                    debug("Dostałem RELEASE FIELD OD %d", pakiet.src);
+                    field_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
+                   
+                }
             break;
             default:
             break;

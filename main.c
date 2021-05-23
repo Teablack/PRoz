@@ -22,11 +22,11 @@ pthread_mutex_t callowMut = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t desk_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t room_mut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t starting_field_mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t field_mut = PTHREAD_MUTEX_INITIALIZER;
 
 process_queue_node* desk_queue = NULL;
 process_queue_node* room_queue = NULL;
-process_queue_node* starting_field_queue = NULL;
+process_queue_node* field_queue = NULL;
 
 void check_thread_support(int provided)
 {
@@ -260,5 +260,58 @@ int room_queue_size(){
     int n = 0;
     n = queue_size(&room_queue);
     pthread_mutex_unlock(&room_mut);
+    return n;
+}
+
+//STARTING FIELD
+
+void field_queue_add(int id, int time, int data){
+    pthread_mutex_lock(&field_mut);
+    queue_add(&field_queue,create_process_s(id, time, data));
+    pthread_mutex_unlock(&field_mut);
+}
+
+void field_queue_replace(int id, int time, int data){
+    pthread_mutex_lock(&field_mut);
+    queue_remove(&field_queue,id);
+    queue_add(&field_queue,create_process_s(id, time, data));
+    pthread_mutex_unlock(&field_mut);
+}
+void field_queue_remove(int id){
+    pthread_mutex_lock(&field_mut);
+    queue_remove(&field_queue,id);
+    pthread_mutex_unlock(&field_mut);
+}
+
+int field_queue_free(){
+    pthread_mutex_lock(&field_mut);
+    int n = F - queue_before_me(&field_queue, rank);
+    pthread_mutex_unlock(&field_mut);
+    return n;
+}
+
+int field_queue_my_ts(){
+    pthread_mutex_lock(&field_mut);
+    int n = queue_my_ts(&field_queue,rank);
+    pthread_mutex_unlock(&field_mut);
+    return n;
+}
+
+void field_queue_clear(){
+    pthread_mutex_lock(&field_mut);
+    queue_clear(&field_queue);
+    pthread_mutex_unlock(&field_mut);
+}
+void field_queue_print(){
+    pthread_mutex_lock(&field_mut);
+    queue_print(&field_queue);
+    pthread_mutex_unlock(&field_mut);
+}
+
+int field_queue_size(){
+    pthread_mutex_lock(&field_mut);
+    int n = 0;
+    n = queue_size(&field_queue);
+    pthread_mutex_unlock(&field_mut);
     return n;
 }

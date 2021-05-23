@@ -46,7 +46,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 /* kolejki*/
 extern process_queue_node* desk_queue;
 extern process_queue_node* room_queue;
-extern process_queue_node* starting_field_queue;
+extern process_queue_node* field_queue;
 
 /* Typy wiadomości */
 #define REQUEST_FOR_DESK 1
@@ -124,4 +124,13 @@ int room_queue_my_ts();
 void room_queue_clear();
 void room_queue_print();
 int room_queue_size();
+
+void field_queue_add(int, int, int);
+void field_queue_replace(int, int, int);
+void field_queue_remove(int);
+int field_queue_free();
+int field_queue_my_ts();
+void field_queue_clear();
+void field_queue_print();
+int field_queue_size();
 #endif
