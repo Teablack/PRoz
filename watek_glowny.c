@@ -36,12 +36,13 @@ void mainLoop()
             while(desk_queue_free()<ln) {
                 //czekam aż drugi wątek mnie obudzi?
             }
-            //debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
+            debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
             
             changeState(DISCUSSION);
         }
         else if(stan==DISCUSSION){
 
+            sleep(rank);
             packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = ln;
         
@@ -80,11 +81,11 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan THE_BIG_LIE)");
-            //sleep(500000);
+           
             changeState(THE_BIG_LIE);
         }
         else if(stan==THE_BIG_LIE){
-
+            sleep(rank);
             packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
@@ -123,10 +124,10 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan BIG_BOOM)");
-            //sleep(500000);
             changeState(BIG_BOOM);
         }
         else if(stan==BIG_BOOM){
+            sleep(rank);
             packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
@@ -164,11 +165,10 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan EXPLANATION)");
-            //sleep(500000);
             changeState(EXPLANATION);
         }
         else if(stan==EXPLANATION){
-            
+            sleep(rank);
             packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
