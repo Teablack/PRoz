@@ -118,7 +118,7 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
-            //field_queue_print();
+            field_queue_print();
             
             while(field_queue_free()<1) {
                 //czekam aż drugi wątek mnie obudzi?

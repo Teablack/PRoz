@@ -43,6 +43,8 @@ extern process_queue_node* desk_queue;
 extern process_queue_node* room_queue;
 extern process_queue_node* field_queue;
 
+extern pthread_mutex_t stateMut;
+
 /* Typy wiadomości */
 #define REQUEST_FOR_DESK 1
 #define REQUEST_FOR_ROOM 2
