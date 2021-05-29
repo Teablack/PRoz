@@ -16,7 +16,6 @@ void mainLoop()
             desk_queue_clear();
             desk_queue_add(rank, lclock, ln);
         
-
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, REQUEST_FOR_DESK);
@@ -134,13 +133,13 @@ void mainLoop()
             debug("Wysyłam RELEASE");
             for(int i=0;i<size;i++){
                 if (i!=rank)
-                    sendPacket(pkt, i, RELEASE_ROOM);
+                    sendPacket(pkt, i, RELEASE_STARTING_FIELD);
             }
             debug("Skonczylem wysylac");
 
-            field_queue_clear();
-            field_queue_add(rank, lclock, 1);
-
+            desk_queue_clear();
+            desk_queue_add(rank, lclock, 1);
+/////////////////////////////////////////////////////////////////////////////////
             //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
@@ -175,7 +174,7 @@ void mainLoop()
             debug("Wysyłam RELEASE");
             for(int i=0;i<size;i++){
                 if (i!=rank)
-                    sendPacket(pkt, i, RELEASE_STARTING_FIELD);
+                    sendPacket(pkt, i, RELEASE_DESK);
             }
             debug("Skonczylem wysylac");
             debug("Zmieniam stan na INIT");
