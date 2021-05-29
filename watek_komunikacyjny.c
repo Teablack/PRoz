@@ -12,13 +12,12 @@ void *startKomWatek(void *ptr)
     debug("..ja zyje...");
     while(TRUE){
 
-        pthread_mutex_lock(&stateMut);
+        //pthread_mutex_lock(&stateMut);
 
         stan_cp = stan;
-
-        pthread_mutex_unlock(&stateMut);
         
-        while(
+
+        if(
             (stan_cp == WAITING_TO_DISCUSS) 
             || (stan_cp == WAITING_FOR_ROOM) 
             || (stan_cp == WAITING_FOR_STARTING_FIELD) 
@@ -28,6 +27,7 @@ void *startKomWatek(void *ptr)
             MPI_Recv(&pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  //tu typy wiadomosci
             setClock(pakiet.ts+1);
             packet_t *pkt = malloc(sizeof(packet_t));
+            
             switch(status.MPI_TAG){
 
                 case REQUEST_FOR_DESK: 
@@ -76,20 +76,20 @@ void *startKomWatek(void *ptr)
                 case ACK_DESK: 
                     if((stan_cp == WAITING_TO_DISCUSS)||(stan_cp == WAITING_FOR_ONE_DESK)){
                         //pthread_mutex_unlock(&stateMut);
-                        if(pakiet.ts > desk_queue_my_ts()){ 
+                        //if(pakiet.ts > desk_queue_my_ts()){ 
                             debug("Dostałem ACK OD %d", pakiet.src);
                             debug(" Dostałem juz: %d odpowiedzi ",desk_queue_size());
                             desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
-                        }
+                        //}
                     }
                 break;
                 case RELEASE_DESK: 
                     if((stan_cp == WAITING_TO_DISCUSS)||(stan_cp == WAITING_FOR_ONE_DESK)){
                         //pthread_mutex_unlock(&stateMut);
-                        if(pakiet.qts > desk_queue_my_ts()){ 
+                        //if(pakiet.qts > desk_queue_my_ts()){ 
                             debug("Dostałem RELEASE OD %d", pakiet.src);
                             desk_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
-                        }
+                        //}
                     }
                 break;
                 case REQUEST_FOR_ROOM: 
@@ -178,9 +178,12 @@ void *startKomWatek(void *ptr)
                         field_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
                     }
                 break;
-                default:
+                default: {
+                    debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }
                 break;
             }
         }
+        //pthread_mutex_unlock(&stateMut);
     }
 }
