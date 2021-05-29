@@ -3,13 +3,16 @@
 #include "structs.h"
 #include "queue.h"
 
+
+
 void mainLoop()
 {
+    packet_t *pkt = malloc(sizeof(packet_t));
     while(TRUE){
         if(stan==INIT){
             debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
 
-            packet_t *pkt = malloc(sizeof(packet_t));
+            
             pkt->data = ln;
             pkt->qts = lclock;
 
@@ -21,16 +24,16 @@ void mainLoop()
                     sendPacket(pkt, i, REQUEST_FOR_DESK);
             }
 
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac REQUEST_FOR_DESK");
            
             debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
         }
         else if(stan==WAITING_TO_DISCUSS){   
-            while(desk_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
+            while(desk_queue_size()<size){
                //czekam aż drugi wątek mnie obudzi?
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE DESK");
             desk_queue_print();
             while(desk_queue_free()<ln) {
                 //czekam aż drugi wątek mnie obudzi?
@@ -42,28 +45,28 @@ void mainLoop()
         else if(stan==DISCUSSION){
 
             sleep(rank);
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = ln;
         
-            debug("Wysyłam RELEASE");
+            debug("Wysyłam RELEASE DESK");
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, RELEASE_DESK);
             }
-            debug("Skonczylem wysylac");
-
+            debug("Skonczylem wysylac RELEASE DESK");
+            debug("Wysyłam REQUEST_FOR_ROOM");
             room_queue_clear();
             room_queue_add(rank, lclock, 1);
             
-            packet_t *pkt2 = malloc(sizeof(packet_t));
-            pkt2->data = 1;
-            pkt2->qts = lclock;
+            //packet_t *pkt2 = malloc(sizeof(packet_t));
+            pkt->data = 1;
+            pkt->qts = lclock;
             
             for(int i=0;i<size;i++){
                 if (i!=rank)
-                    sendPacket(pkt2, i, REQUEST_FOR_ROOM);
+                    sendPacket(pkt, i, REQUEST_FOR_ROOM);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac REQUEST_FOR_ROOM");
             debug("Zmieniam stan na WAITING_FOR_ROOM");
         
             changeState(WAITING_FOR_ROOM);
@@ -73,7 +76,7 @@ void mainLoop()
             while(room_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
                //czekam aż drugi wątek mnie obudzi?
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE");
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ROOM");
             room_queue_print();
             
             while(room_queue_free()<1) {
@@ -85,20 +88,20 @@ void mainLoop()
         }
         else if(stan==THE_BIG_LIE){
             sleep(rank);
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
-            debug("Wysyłam RELEASE");
+            debug("Wysyłam RELEASE_ROOM");
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, RELEASE_ROOM);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac RELEASE_ROOM");
 
             field_queue_clear();
             field_queue_add(rank, lclock, 1);
-
-            //packet_t *pkt = malloc(sizeof(packet_t));
+            debug("Wysyłam REQUEST_FOR_STARTING_FIELD");
+            //packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -106,7 +109,7 @@ void mainLoop()
                 if (i!=rank)
                     sendPacket(pkt, i, REQUEST_FOR_STARTING_FIELD);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac REQUEST_FOR_STARTING_FIELD");
             debug("Zmieniam stan na WAITING_FOR_STARTING_FIELD");
 
             changeState(WAITING_FOR_STARTING_FIELD);
@@ -127,20 +130,21 @@ void mainLoop()
         }
         else if(stan==BIG_BOOM){
             sleep(rank);
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
-            debug("Wysyłam RELEASE");
+            debug("Wysyłam RELEASE_STARTING_FIELD");
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, RELEASE_STARTING_FIELD);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac RELEASE_STARTING_FIELD");
 
             desk_queue_clear();
             desk_queue_add(rank, lclock, 1);
-/////////////////////////////////////////////////////////////////////////////////
-            //packet_t *pkt = malloc(sizeof(packet_t));
+
+            debug("Wysyłam REQUEST_FOR_DESK");
+            //packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -148,7 +152,7 @@ void mainLoop()
                 if (i!=rank)
                     sendPacket(pkt, i, REQUEST_FOR_DESK);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac REQUEST_FOR_DESK");
             debug("Zmieniam stan na WAITING_FOR_ONE_DESK");
 
             changeState(WAITING_FOR_ONE_DESK);
@@ -157,7 +161,7 @@ void mainLoop()
             while(desk_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
                //czekam aż drugi wątek mnie obudzi?
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ONE DESK");
             desk_queue_print();
             
             while(desk_queue_free()<1) {
@@ -168,15 +172,15 @@ void mainLoop()
         }
         else if(stan==EXPLANATION){
             sleep(rank);
-            packet_t *pkt = malloc(sizeof(packet_t));
+            //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
-            debug("Wysyłam RELEASE");
+            debug("Wysyłam RELEASE ONE DESK");
             for(int i=0;i<size;i++){
                 if (i!=rank)
                     sendPacket(pkt, i, RELEASE_DESK);
             }
-            debug("Skonczylem wysylac");
+            debug("Skonczylem wysylac RELEASE ONE DESK");
             debug("Zmieniam stan na INIT");
             changeState(INIT);
         }

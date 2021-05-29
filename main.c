@@ -107,15 +107,15 @@ void finalizuj()
 /* opis patrz main.h */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    int freepkt=0;  
-    if (pkt==0) {
-        pkt = malloc(sizeof(packet_t)); 
-        freepkt=1;
-    }
+    // int freepkt=0;  
+    // if (pkt==0) {
+    //     pkt = malloc(sizeof(packet_t)); 
+    //     freepkt=1;
+    // }
     pkt->src = rank;
     pkt->ts = changeClock(1);
     MPI_Send(pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    if(freepkt) free(pkt); 
+    //if(freepkt) free(pkt); 
 }
 
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
@@ -137,9 +137,9 @@ int changeClock(int newClock){
 void changeState(state_t newState)
 {
     changeClock(1);
-    pthread_mutex_lock( &stateMut );
+    pthread_mutex_lock(&stateMut);
     stan = newState;
-    pthread_mutex_unlock( &stateMut );
+    pthread_mutex_unlock(&stateMut);
 }
 
 int main(int argc, char **argv)
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
     F = 1;
     srandom(rank);
     ln = random()%5+2;
-    
+    sleep(3);
     mainLoop();          // w pliku "watek_glowny.c"
     
     finalizuj();

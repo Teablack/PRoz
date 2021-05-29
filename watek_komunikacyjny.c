@@ -8,18 +8,18 @@ void *startKomWatek(void *ptr)
 {
     MPI_Status status;
     packet_t pakiet;
-
+    debug("..ja zyje...");
     while(TRUE){
         while(
-            (stan !=INIT) 
-            &&(stan !=DISCUSSION) 
-            &&(stan !=THE_BIG_LIE) 
-            &&(stan !=BIG_BOOM) 
-            &&(stan !=EXPLANATION)
+            (stan == WAITING_TO_DISCUSS) 
+            || (stan == WAITING_FOR_ROOM) 
+            || (stan == WAITING_FOR_STARTING_FIELD) 
+            || (stan == WAITING_FOR_ONE_DESK) 
         ){
             debug("..czekam na recv...");
             MPI_Recv(&pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  //tu typy wiadomosci
             setClock(pakiet.ts+1);
+            packet_t *pkt = malloc(sizeof(packet_t));
             switch(status.MPI_TAG){
 
                 case REQUEST_FOR_DESK: 
@@ -29,7 +29,7 @@ void *startKomWatek(void *ptr)
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
                         
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        
                         pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = ln;
                         
@@ -42,25 +42,25 @@ void *startKomWatek(void *ptr)
                     ){
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         debug("Wysyłam ACK do %d", pakiet.src);
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        //packet_t *pkt = malloc(sizeof(packet_t));
                         pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                         pkt->qts = lclock;
                         sendPacket(pkt, pakiet.src, ACK_DESK);
                         debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                     }
                     else if(stan == WAITING_FOR_ONE_DESK){
-                        if(pakiet.ts > desk_queue_my_ts()){                     //poprawka - przyjmuje wiad wyslane po moim requescie
+                       // if(pakiet.ts > desk_queue_my_ts()){                     //poprawka - przyjmuje wiad wyslane po moim requescie
                             debug("Dostałem REQUEST OD %d", pakiet.src);
                             desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
                             
-                            packet_t *pkt = malloc(sizeof(packet_t));
+                            //packet_t *pkt = malloc(sizeof(packet_t));
                             pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                             pkt->data = 1;
                             
                             debug("Wysyłam ACK do %d", pakiet.src);
                             sendPacket(pkt, pakiet.src, ACK_DESK);
                             debug("Skończyłem wysyłać ACK do %d", pakiet.src);
-                        }
+                        //}
                         debug(" w stanie waiting for one desk pominieto wiadomosc REQUEST od %d", pakiet.src);
                     }
                 break;
@@ -87,23 +87,23 @@ void *startKomWatek(void *ptr)
                     || (stan == WAITING_FOR_ONE_DESK)
                     ){
                         debug("Dostałem REQUEST FOR ROOM OD %d  ", pakiet.src);
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        //packet_t *pkt = malloc(sizeof(packet_t));
                         pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                         pkt->qts = lclock;
                         sendPacket(pkt, pakiet.src, ACK_ROOM);
-                        debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                        debug("Skończyłem wysyłać ACK ROOM do %d", pakiet.src);
                     }
                     else if(stan == WAITING_FOR_ROOM){
                         
                         debug("Dostałem REQUEST FOR ROOM OD %d", pakiet.src);
                         room_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        //packet_t *pkt = malloc(sizeof(packet_t));
                         pkt->qts = room_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = 1;
                         
                         debug("Wysyłam ACK ROOM do %d", pakiet.src);
                         sendPacket(pkt, pakiet.src, ACK_ROOM);
-                        debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                        debug("Skończyłem wysyłać ACK ROOM do %d", pakiet.src);
                     }
                 break;
                 case ACK_ROOM: 
@@ -125,7 +125,7 @@ void *startKomWatek(void *ptr)
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         field_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
                         
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        //packet_t *pkt = malloc(sizeof(packet_t));
                         pkt->qts = field_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = 1;
                         
@@ -138,7 +138,7 @@ void *startKomWatek(void *ptr)
                     || (stan == WAITING_TO_DISCUSS)
                     ){
                         debug("Dostałem REQUEST FOR START FIELD OD %d ", pakiet.src);
-                        packet_t *pkt = malloc(sizeof(packet_t));
+                        //packet_t *pkt = malloc(sizeof(packet_t));
                         pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                         pkt->qts = lclock;
                         sendPacket(pkt, pakiet.src, ACK_STARTING_FIELD);
