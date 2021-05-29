@@ -12,10 +12,9 @@
 
 int lclock;
 state_t stan=INIT;;
-volatile char end = FALSE;
 int size,rank, B, K, ln, F; /* nie trzeba zerować, bo zmienna globalna statyczna */
 MPI_Datatype MPI_PAKIET_T;
-pthread_t threadKom, threadMon;
+pthread_t threadKom; 
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t callowMut = PTHREAD_MUTEX_INITIALIZER;
@@ -84,10 +83,6 @@ void inicjuj(int *argc, char ***argv)
     srand(rank);
 
     pthread_create( &threadKom, NULL, startKomWatek , 0);
-    // if (rank==0) {
-	//     pthread_create( &threadMon, NULL, startMonitor, 0);
-    // }
-    // debug("jestem");
 }
 
 /* usunięcie zamkków, czeka, aż zakończy się drugi wątek, zwalnia przydzielony typ MPI_PAKIET_T
@@ -99,7 +94,6 @@ void finalizuj()
     /* Czekamy, aż wątek potomny się zakończy */
     println("czekam na wątek \"komunikacyjny\"\n" );
     pthread_join(threadKom,NULL);
-    if (rank==0) pthread_join(threadMon,NULL);
     MPI_Type_free(&MPI_PAKIET_T);
     MPI_Finalize();
 }
@@ -107,15 +101,9 @@ void finalizuj()
 /* opis patrz main.h */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    // int freepkt=0;  
-    // if (pkt==0) {
-    //     pkt = malloc(sizeof(packet_t)); 
-    //     freepkt=1;
-    // }
     pkt->src = rank;
     pkt->ts = changeClock(1);
     MPI_Send(pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    //if(freepkt) free(pkt); 
 }
 
 //lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 

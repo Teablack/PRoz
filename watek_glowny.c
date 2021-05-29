@@ -34,7 +34,7 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE DESK");
-            desk_queue_print();
+            //desk_queue_print();
             while(desk_queue_free()<ln) {
                 //czekam aż drugi wątek mnie obudzi?
             }
@@ -44,7 +44,7 @@ void mainLoop()
         }
         else if(stan==DISCUSSION){
 
-            sleep(rank);
+            sleep(1);
             //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = ln;
         
@@ -77,7 +77,7 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ROOM");
-            room_queue_print();
+            //room_queue_print();
             
             while(room_queue_free()<1) {
                 //czekam aż drugi wątek mnie obudzi?
@@ -87,8 +87,7 @@ void mainLoop()
             changeState(THE_BIG_LIE);
         }
         else if(stan==THE_BIG_LIE){
-            sleep(rank);
-            //packet_t *pkt = malloc(sizeof(packet_t));
+            sleep(1);
             pkt->data = 0;
         
             debug("Wysyłam RELEASE_ROOM");
@@ -101,7 +100,6 @@ void mainLoop()
             field_queue_clear();
             field_queue_add(rank, lclock, 1);
             debug("Wysyłam REQUEST_FOR_STARTING_FIELD");
-            //packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -120,7 +118,7 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
-            field_queue_print();
+            //field_queue_print();
             
             while(field_queue_free()<1) {
                 //czekam aż drugi wątek mnie obudzi?
@@ -129,7 +127,7 @@ void mainLoop()
             changeState(BIG_BOOM);
         }
         else if(stan==BIG_BOOM){
-            sleep(rank);
+            sleep(1);
             //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         
@@ -162,7 +160,7 @@ void mainLoop()
                //czekam aż drugi wątek mnie obudzi?
             }
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ONE DESK");
-            desk_queue_print();
+            //desk_queue_print();
             
             while(desk_queue_free()<1) {
                 //czekam aż drugi wątek mnie obudzi?
@@ -171,7 +169,7 @@ void mainLoop()
             changeState(EXPLANATION);
         }
         else if(stan==EXPLANATION){
-            sleep(rank);
+            sleep(1);
             //packet_t *pkt = malloc(sizeof(packet_t));
             pkt->data = 0;
         

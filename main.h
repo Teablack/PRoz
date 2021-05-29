@@ -29,11 +29,6 @@ extern int B;
 extern int K;
 extern int F;
 
-/* stan globalny wykryty przez monitor */
-//extern int globalState;
-/* ilu już odpowiedziało na GIVEMESTATE */
-//extern int numberReceived;
-
 /* to może przeniesiemy do global... */
 typedef struct {
     int ts;       /* timestamp (zegar lamporta */

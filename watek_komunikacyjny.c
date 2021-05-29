@@ -61,7 +61,6 @@ void *startKomWatek(void *ptr)
                             sendPacket(pkt, pakiet.src, ACK_DESK);
                             debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                         //}
-                        debug(" w stanie waiting for one desk pominieto wiadomosc REQUEST od %d", pakiet.src);
                     }
                 break;
                 case ACK_DESK: 
@@ -129,9 +128,9 @@ void *startKomWatek(void *ptr)
                         pkt->qts = field_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = 1;
                         
-                        debug("Wysyłam ACK do %d", pakiet.src);
+                        debug("Wysyłam ACK FIELD do %d", pakiet.src);
                         sendPacket(pkt, pakiet.src, ACK_STARTING_FIELD);
-                        debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                        debug("Skończyłem wysyłać ACK FIELD do %d", pakiet.src);
                     }
                     else if((stan == WAITING_FOR_ROOM)
                     || (stan == WAITING_FOR_ONE_DESK)
@@ -142,7 +141,7 @@ void *startKomWatek(void *ptr)
                         pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                         pkt->qts = lclock;
                         sendPacket(pkt, pakiet.src, ACK_STARTING_FIELD);
-                        debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                        debug("Skończyłem wysyłać ACK FIELD do %d", pakiet.src);
                     }
                 break;
                 case ACK_STARTING_FIELD: 
