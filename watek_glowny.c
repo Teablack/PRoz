@@ -3,15 +3,12 @@
 #include "structs.h"
 #include "queue.h"
 
-
-
 void mainLoop()
 {
     packet_t *pkt = malloc(sizeof(packet_t));
     while(TRUE){
         if(stan==INIT){
             debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
-
             
             pkt->data = ln;
             pkt->qts = lclock;
@@ -39,15 +36,13 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
-            
             changeState(DISCUSSION);
         }
         else if(stan==DISCUSSION){
 
-            sleep(1);
-            //packet_t *pkt = malloc(sizeof(packet_t));
+            sleep(5);
             pkt->data = ln;
-        
+            pkt->ts = lclock;
             debug("Wysyłam RELEASE DESK");
             for(int i=0;i<size;i++){
                 if (i!=rank)
@@ -58,7 +53,6 @@ void mainLoop()
             room_queue_clear();
             room_queue_add(rank, lclock, 1);
             
-            //packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -68,11 +62,10 @@ void mainLoop()
             }
             debug("Skonczylem wysylac REQUEST_FOR_ROOM");
             debug("Zmieniam stan na WAITING_FOR_ROOM");
-        
             changeState(WAITING_FOR_ROOM);
         }
         else if(stan==WAITING_FOR_ROOM){
-
+            sleep(4);
             while(room_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
                //czekam aż drugi wątek mnie obudzi?
             }
@@ -83,11 +76,10 @@ void mainLoop()
                 //czekam aż drugi wątek mnie obudzi?
             }
             debug("Wchodze do sekcji krytycznej (stan THE_BIG_LIE)");
-           
             changeState(THE_BIG_LIE);
         }
         else if(stan==THE_BIG_LIE){
-            sleep(1);
+            sleep(4);
             pkt->data = 0;
         
             debug("Wysyłam RELEASE_ROOM");
@@ -113,7 +105,7 @@ void mainLoop()
             changeState(WAITING_FOR_STARTING_FIELD);
         }
         else if(stan==WAITING_FOR_STARTING_FIELD){
-            
+            sleep(5);
             while(field_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
                //czekam aż drugi wątek mnie obudzi?
             }
@@ -142,7 +134,6 @@ void mainLoop()
             desk_queue_add(rank, lclock, 1);
 
             debug("Wysyłam REQUEST_FOR_DESK");
-            //packet_t *pkt2 = malloc(sizeof(packet_t));
             pkt->data = 1;
             pkt->qts = lclock;
             
@@ -169,8 +160,7 @@ void mainLoop()
             changeState(EXPLANATION);
         }
         else if(stan==EXPLANATION){
-            sleep(1);
-            //packet_t *pkt = malloc(sizeof(packet_t));
+            sleep(3);
             pkt->data = 0;
         
             debug("Wysyłam RELEASE ONE DESK");
