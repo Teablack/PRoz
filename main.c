@@ -5,14 +5,10 @@
 #include "queue.h"
 #include <pthread.h>
 
-/* sem_init sem_destroy sem_post sem_wait */
-//#include <semaphore.h>
-/* flagi dla open */
-//#include <fcntl.h>
-
 int lclock;
 state_t stan=INIT;;
-int size,rank, B, K, ln, F; /* nie trzeba zerować, bo zmienna globalna statyczna */
+int size,rank, B, K, ln, F;
+int free_B, free_K, free_F;
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom; 
 
@@ -23,13 +19,14 @@ pthread_mutex_t desk_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t room_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t field_mut = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mainMut = PTHREAD_MUTEX_INITIALIZER;
 process_queue_node* desk_queue = NULL;
 process_queue_node* room_queue = NULL;
 process_queue_node* field_queue = NULL;
 
 void check_thread_support(int provided)
 {
-
     printf("THREAD SUPPORT: chcemy %d. Co otrzymamy?\n", provided);
     switch (provided) {
         case MPI_THREAD_SINGLE: 
@@ -52,20 +49,14 @@ void check_thread_support(int provided)
     }
 }
 
-/* srprawdza, czy są wątki, tworzy typ MPI_PAKIET_T
-*/
+/* srprawdza, czy są wątki, tworzy typ MPI_PAKIET_T */
 void inicjuj(int *argc, char ***argv)
 {
     int provided;
     MPI_Init_thread(argc, argv,MPI_THREAD_MULTIPLE, &provided);
     check_thread_support(provided);
 
-    /* Stworzenie typu */
-    /* Poniższe (aż do MPI_Type_commit) potrzebne tylko, jeżeli
-       brzydzimy się czymś w rodzaju MPI_Send(&typ, sizeof(pakiet_t), MPI_BYTE....
-    */
-    /* sklejone z stackoverflow */
-    const int nitems=4; /* bo packet_t ma trzy pola */
+    const int nitems=4; 
     int       blocklengths[4] = {1,1,1,1};
     MPI_Datatype typy[4] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
@@ -80,7 +71,6 @@ void inicjuj(int *argc, char ***argv)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    srand(rank);
 
     pthread_create( &threadKom, NULL, startKomWatek , 0);
 }
@@ -90,7 +80,7 @@ void inicjuj(int *argc, char ***argv)
 */
 void finalizuj()
 {
-    pthread_mutex_destroy( &stateMut);
+    pthread_mutex_destroy(&stateMut);
     /* Czekamy, aż wątek potomny się zakończy */
     println("czekam na wątek \"komunikacyjny\"\n" );
     pthread_join(threadKom,NULL);
@@ -134,7 +124,6 @@ int main(int argc, char **argv)
 {
     /* Tworzenie wątków, inicjalizacja itp */
     inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
-
     B = 10;
     K = 4;
     F = 1;
@@ -142,7 +131,6 @@ int main(int argc, char **argv)
     ln = random()%5+2;
     sleep(3);
     mainLoop();          // w pliku "watek_glowny.c"
-    
     finalizuj();
     return 0;
 }

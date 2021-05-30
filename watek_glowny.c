@@ -25,16 +25,28 @@ void mainLoop()
            
             debug("Zmieniam stan na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
+
         }
         else if(stan==WAITING_TO_DISCUSS){   
+
+            pthread_mutex_lock(&mainMut); 
             while(desk_queue_size()<size){
-               //czekam aż drugi wątek mnie obudzi?
+               debug(".....zasypiam...");
+               pthread_cond_wait(&cond, &mainMut);
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE DESK");
-            //desk_queue_print();
+            pthread_mutex_unlock(&mainMut);
+
+            debug(".....budze sie...");
+            
+            pthread_mutex_lock(&mainMut); 
+           
             while(desk_queue_free()<ln) {
-                //czekam aż drugi wątek mnie obudzi?
+                debug(".....zasypiam2...");
+                pthread_cond_wait(&cond, &mainMut);
             }
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie2...");
+            
             debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
             changeState(DISCUSSION);
         }
@@ -66,15 +78,25 @@ void mainLoop()
         }
         else if(stan==WAITING_FOR_ROOM){
             sleep(4);
+
+            pthread_mutex_lock(&mainMut);
             while(room_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
-               //czekam aż drugi wątek mnie obudzi?
+               debug(".....zasypiam...");
+               pthread_cond_wait(&cond, &mainMut);
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ROOM");
+            //debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ROOM");
             //room_queue_print();
-            
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie...");
+            pthread_mutex_lock(&mainMut);
+
             while(room_queue_free()<1) {
-                //czekam aż drugi wątek mnie obudzi?
+                debug(".....zasypiam2...");
+                pthread_cond_wait(&cond, &mainMut);
             }
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie2...");
+
             debug("Wchodze do sekcji krytycznej (stan THE_BIG_LIE)");
             changeState(THE_BIG_LIE);
         }
@@ -106,21 +128,30 @@ void mainLoop()
         }
         else if(stan==WAITING_FOR_STARTING_FIELD){
             sleep(5);
-            while(field_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
-               //czekam aż drugi wątek mnie obudzi?
+            pthread_mutex_lock(&mainMut);
+
+            while(field_queue_size()<size){        
+               debug(".....zasypiam...");
+               pthread_cond_wait(&cond, &mainMut);
             }
-            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
-            field_queue_print();
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie...");
+            pthread_mutex_lock(&mainMut);
+            //debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
+            //field_queue_print();
             
             while(field_queue_free()<1) {
-                //czekam aż drugi wątek mnie obudzi?
+                debug(".....zasypiam2...");
+                pthread_cond_wait(&cond, &mainMut);
             }
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie2...");
             debug("Wchodze do sekcji krytycznej (stan BIG_BOOM)");
             changeState(BIG_BOOM);
         }
         else if(stan==BIG_BOOM){
             sleep(1);
-            //packet_t *pkt = malloc(sizeof(packet_t));
+            
             pkt->data = 0;
         
             debug("Wysyłam RELEASE_STARTING_FIELD");
@@ -147,15 +178,23 @@ void mainLoop()
             changeState(WAITING_FOR_ONE_DESK);
         }
         else if(stan==WAITING_FOR_ONE_DESK){
-            while(desk_queue_size()<size){        //po requescie/ack od kazdego //sprawdzac timestamp RELEASE na wszelki > nasz REQUEST
-               //czekam aż drugi wątek mnie obudzi?
+            pthread_mutex_lock(&mainMut);
+            while(desk_queue_size()<size){ 
+                debug(".....zasypiam...");
+                pthread_cond_wait(&cond, &mainMut);       
             }
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie...");
+            pthread_mutex_lock(&mainMut);
             debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE ONE DESK");
             //desk_queue_print();
             
             while(desk_queue_free()<1) {
-                //czekam aż drugi wątek mnie obudzi?
+                debug(".....zasypiam2...");
+                pthread_cond_wait(&cond, &mainMut);
             }
+            pthread_mutex_unlock(&mainMut);
+            debug(".....budze sie2...");
             debug("Wchodze do sekcji krytycznej (stan EXPLANATION)");
             changeState(EXPLANATION);
         }

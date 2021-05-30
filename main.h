@@ -44,6 +44,8 @@ extern process_queue_node* room_queue;
 extern process_queue_node* field_queue;
 
 extern pthread_mutex_t stateMut;
+extern pthread_cond_t cond;
+extern pthread_mutex_t mainMut;
 
 /* Typy wiadomości */
 #define REQUEST_FOR_DESK 1

@@ -30,7 +30,7 @@ void *startKomWatek(void *ptr)
                     if(stan_cp == WAITING_TO_DISCUSS){
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
-                        
+                        pthread_cond_signal(&cond);  
                         pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = ln;
                         
@@ -51,22 +51,23 @@ void *startKomWatek(void *ptr)
                     }
                     else if(stan_cp == WAITING_FOR_ONE_DESK){
                        
-                            debug("Dostałem REQUEST OD %d", pakiet.src);
-                            desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
+                        debug("Dostałem REQUEST OD %d", pakiet.src);
+                        desk_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
+                        pthread_cond_signal(&cond); 
+                        pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
+                        pkt->data = 1;
                             
-                            pkt->qts = desk_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
-                            pkt->data = 1;
-                            
-                            debug("Wysyłam ACK do %d", pakiet.src);
-                            sendPacket(pkt, pakiet.src, ACK_DESK);
-                            debug("Skończyłem wysyłać ACK do %d", pakiet.src);
+                        debug("Wysyłam ACK do %d", pakiet.src);
+                        sendPacket(pkt, pakiet.src, ACK_DESK);
+                        debug("Skończyłem wysyłać ACK do %d", pakiet.src);
                     }
                 break;
                 case ACK_DESK: 
                     if((stan_cp == WAITING_TO_DISCUSS)||(stan_cp == WAITING_FOR_ONE_DESK)){ 
-                            debug("Dostałem ACK OD %d", pakiet.src);
-                            debug(" Dostałem juz: %d odpowiedzi ",desk_queue_size());
-                            desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
+                        debug("Dostałem ACK OD %d", pakiet.src);
+                        debug(" Dostałem juz: %d odpowiedzi ",desk_queue_size());
+                        desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
+                        pthread_cond_signal(&cond);  
                     }
                 break;
                 case RELEASE_DESK: 
@@ -74,6 +75,7 @@ void *startKomWatek(void *ptr)
                         if(pakiet.ts > desk_queue_my_ts()){ // nie przyjmuje wczesniejsze od mojego requestu
                             debug("Dostałem RELEASE OD %d", pakiet.src);
                             desk_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
+                            pthread_cond_signal(&cond);  
                         }
                     }
                 break;
@@ -92,6 +94,7 @@ void *startKomWatek(void *ptr)
                     else if(stan_cp == WAITING_FOR_ROOM){
                         debug("Dostałem REQUEST FOR ROOM OD %d", pakiet.src);
                         room_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
+                        pthread_cond_signal(&cond); 
                         pkt->qts = room_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = 1;
                         
@@ -105,20 +108,21 @@ void *startKomWatek(void *ptr)
                         debug("Dostałem ACK ROOM OD %d", pakiet.src);
                         debug(" Dostałem juz: %d odpowiedzi ",room_queue_size());
                         room_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
+                        pthread_cond_signal(&cond); 
                     }
                 break;
                 case RELEASE_ROOM: 
                     if(stan_cp == WAITING_FOR_ROOM){
                         debug("Dostałem RELEASE ROOM OD %d", pakiet.src);
                         room_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
-                    
+                        pthread_cond_signal(&cond); 
                     }
                 break;
                 case REQUEST_FOR_STARTING_FIELD: 
                     if(stan_cp == WAITING_FOR_STARTING_FIELD){
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         field_queue_replace(pakiet.src, pakiet.qts, pakiet.data);
-                        
+                        pthread_cond_signal(&cond); 
                         pkt->qts = field_queue_my_ts();  //uwaga ! wysyłam swoj znacznik czasowy w kolejce a nie ts
                         pkt->data = 1;
                         
@@ -142,13 +146,14 @@ void *startKomWatek(void *ptr)
                         debug("Dostałem ACK FIELD %d", pakiet.src);
                         debug(" Dostałem juz: %d odpowiedzi ",field_queue_size());
                         field_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
-                        
+                        pthread_cond_signal(&cond); 
                     }
                 break;
                 case RELEASE_STARTING_FIELD: 
                     if(stan_cp == WAITING_FOR_STARTING_FIELD){
                         debug("Dostałem RELEASE FIELD OD %d", pakiet.src);
                         field_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow
+                        pthread_cond_signal(&cond); 
                     }
                 break;
                 default: 
