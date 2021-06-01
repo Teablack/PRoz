@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     F = 1;
     srandom(rank);
     ln = random()%5+2;
-    sleep(3);
+    sleep(2);
     mainLoop();          // w pliku "watek_glowny.c"
     finalizuj();
     return 0;

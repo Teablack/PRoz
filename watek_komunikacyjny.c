@@ -9,7 +9,7 @@ void *startKomWatek(void *ptr)
     MPI_Status status;
     packet_t pakiet;
     state_t stan_cp;
-    debug("..ja zyje...");
+    //debug("..ja zyje...");
     while(TRUE){
         stan_cp = stan;
         if(
@@ -44,7 +44,7 @@ void *startKomWatek(void *ptr)
                         debug("Dostałem REQUEST OD %d", pakiet.src);
                         debug("Wysyłam ACK do %d", pakiet.src);
 
-                        pkt->data = 0;      //nie potrzebuje biurek w tym stan_cpie
+                        pkt->data = 0;      //nie potrzebuje biurek w tym stanie
                         pkt->qts = lclock;
                         sendPacket(pkt, pakiet.src, ACK_DESK);
                         debug("Skończyłem wysyłać ACK do %d", pakiet.src);
@@ -63,15 +63,19 @@ void *startKomWatek(void *ptr)
                     }
                 break;
                 case ACK_DESK: 
-                    if((stan_cp == WAITING_TO_DISCUSS)||(stan_cp == WAITING_FOR_ONE_DESK)){ 
-                        debug("Dostałem ACK OD %d", pakiet.src);
-                        debug(" Dostałem juz: %d odpowiedzi ",desk_queue_size());
-                        desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
-                        pthread_cond_signal(&cond);  
+                    if((stan_cp == WAITING_TO_DISCUSS)
+                    ||(stan_cp == WAITING_FOR_ONE_DESK)){ 
+                        if(pakiet.ts > desk_queue_my_ts()){
+                            debug("Dostałem ACK OD %d", pakiet.src);
+                            debug(" Dostałem juz: %d odpowiedzi ",desk_queue_size());
+                            desk_queue_replace(pakiet.src,pakiet.qts, pakiet.data);
+                            pthread_cond_signal(&cond);  
+                        }
                     }
                 break;
                 case RELEASE_DESK: 
-                    if((stan_cp == WAITING_TO_DISCUSS)||(stan_cp == WAITING_FOR_ONE_DESK)){
+                    if((stan_cp == WAITING_TO_DISCUSS)
+                    ||(stan_cp == WAITING_FOR_ONE_DESK)){
                         if(pakiet.ts > desk_queue_my_ts()){ // nie przyjmuje wczesniejsze od mojego requestu
                             debug("Dostałem RELEASE OD %d", pakiet.src);
                             desk_queue_replace(pakiet.src,pakiet.ts, 0);    //zero oznacza zwolnienie zasobow

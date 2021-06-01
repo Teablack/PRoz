@@ -22,7 +22,7 @@ typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LI
 extern state_t stan;
 extern int rank;
 extern int size;
-extern int ln; //licznosc zesołu 
+extern int ln; //licznosc zespołu 
 
 /*Zasoby */
 extern int B;
