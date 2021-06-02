@@ -1,5 +1,5 @@
-#ifndef TUNNELS_QUEUE_H
-#define TUNNELS_QUEUE_H
+#ifndef QUEUE_H
+#define QUEUE_H
 
 #include "structs.h"
 

@@ -7,7 +7,7 @@ void mainLoop()
 {
     packet_t *pkt = malloc(sizeof(packet_t));
     while(TRUE){
-        if(stan==INIT){
+        if(state==INIT){
             debug("Wysyłam Request z przydziałem %d biurek do wszystkich", ln);
             
             pkt->data = ln;
@@ -23,11 +23,11 @@ void mainLoop()
 
             debug("Skonczylem wysylac REQUEST_FOR_DESK");
            
-            debug("Zmieniam stan na WAITING_TO_DISCUSS");
+            debug("Zmieniam state na WAITING_TO_DISCUSS");
             changeState(WAITING_TO_DISCUSS);
 
         }
-        else if(stan==WAITING_TO_DISCUSS){   
+        else if(state==WAITING_TO_DISCUSS){   
 
             pthread_mutex_lock(&mainMut); 
             while(desk_queue_size()<size){
@@ -47,10 +47,10 @@ void mainLoop()
             pthread_mutex_unlock(&mainMut);
             debug(".....budze sie2...");
             
-            debug("Wchodze do sekcji krytycznej (stan DISCUSSION)");
+            debug("Wchodze do sekcji krytycznej (state DISCUSSION)");
             changeState(DISCUSSION);
         }
-        else if(stan==DISCUSSION){
+        else if(state==DISCUSSION){
 
             sleep(5);
             pkt->data = ln;
@@ -73,10 +73,10 @@ void mainLoop()
                     sendPacket(pkt, i, REQUEST_FOR_ROOM);
             }
             debug("Skonczylem wysylac REQUEST_FOR_ROOM");
-            debug("Zmieniam stan na WAITING_FOR_ROOM");
+            debug("Zmieniam state na WAITING_FOR_ROOM");
             changeState(WAITING_FOR_ROOM);
         }
-        else if(stan==WAITING_FOR_ROOM){
+        else if(state==WAITING_FOR_ROOM){
             sleep(4);
 
             pthread_mutex_lock(&mainMut);
@@ -97,10 +97,10 @@ void mainLoop()
             pthread_mutex_unlock(&mainMut);
             debug(".....budze sie2...");
 
-            debug("Wchodze do sekcji krytycznej (stan THE_BIG_LIE)");
+            debug("Wchodze do sekcji krytycznej (state THE_BIG_LIE)");
             changeState(THE_BIG_LIE);
         }
-        else if(stan==THE_BIG_LIE){
+        else if(state==THE_BIG_LIE){
             sleep(4);
             pkt->data = 0;
         
@@ -122,11 +122,11 @@ void mainLoop()
                     sendPacket(pkt, i, REQUEST_FOR_STARTING_FIELD);
             }
             debug("Skonczylem wysylac REQUEST_FOR_STARTING_FIELD");
-            debug("Zmieniam stan na WAITING_FOR_STARTING_FIELD");
+            debug("Zmieniam state na WAITING_FOR_STARTING_FIELD");
 
             changeState(WAITING_FOR_STARTING_FIELD);
         }
-        else if(stan==WAITING_FOR_STARTING_FIELD){
+        else if(state==WAITING_FOR_STARTING_FIELD){
             sleep(5);
             pthread_mutex_lock(&mainMut);
 
@@ -137,8 +137,8 @@ void mainLoop()
             pthread_mutex_unlock(&mainMut);
             debug(".....budze sie...");
             pthread_mutex_lock(&mainMut);
-            //debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
-            //field_queue_print();
+            debug("PO PIERWSZYCH REQUESTACH/ACK/RELEASE FIELD");
+            field_queue_print();
             
             while(field_queue_free()<1) {
                 debug(".....zasypiam2...");
@@ -146,10 +146,10 @@ void mainLoop()
             }
             pthread_mutex_unlock(&mainMut);
             debug(".....budze sie2...");
-            debug("Wchodze do sekcji krytycznej (stan BIG_BOOM)");
+            debug("Wchodze do sekcji krytycznej (state BIG_BOOM)");
             changeState(BIG_BOOM);
         }
-        else if(stan==BIG_BOOM){
+        else if(state==BIG_BOOM){
             sleep(1);
             
             pkt->data = 0;
@@ -173,11 +173,11 @@ void mainLoop()
                     sendPacket(pkt, i, REQUEST_FOR_DESK);
             }
             debug("Skonczylem wysylac REQUEST_FOR_DESK");
-            debug("Zmieniam stan na WAITING_FOR_ONE_DESK");
+            debug("Zmieniam state na WAITING_FOR_ONE_DESK");
 
             changeState(WAITING_FOR_ONE_DESK);
         }
-        else if(stan==WAITING_FOR_ONE_DESK){
+        else if(state==WAITING_FOR_ONE_DESK){
             pthread_mutex_lock(&mainMut);
             while(desk_queue_size()<size){ 
                 debug(".....zasypiam...");
@@ -195,10 +195,10 @@ void mainLoop()
             }
             pthread_mutex_unlock(&mainMut);
             debug(".....budze sie2...");
-            debug("Wchodze do sekcji krytycznej (stan EXPLANATION)");
+            debug("Wchodze do sekcji krytycznej (state EXPLANATION)");
             changeState(EXPLANATION);
         }
-        else if(stan==EXPLANATION){
+        else if(state==EXPLANATION){
             sleep(3);
             pkt->data = 0;
         
@@ -208,7 +208,7 @@ void mainLoop()
                     sendPacket(pkt, i, RELEASE_DESK);
             }
             debug("Skonczylem wysylac RELEASE ONE DESK");
-            debug("Zmieniam stan na INIT");
+            debug("Zmieniam state na INIT");
             changeState(INIT);
         }
         

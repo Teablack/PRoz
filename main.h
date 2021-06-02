@@ -10,19 +10,15 @@
 #include <string.h>
 #include <pthread.h>
 #include "structs.h"
-/* odkomentować, jeżeli się chce DEBUGI */
-//#define DEBUG 
-/* boolean */
 
 #define TRUE 1
 #define FALSE 0
 
-/* stany procesu */
 typedef enum {INIT, WAITING_TO_DISCUSS, WAITING_FOR_ROOM, DISCUSSION, THE_BIG_LIE, WAITING_FOR_STARTING_FIELD, BIG_BOOM, WAITING_FOR_ONE_DESK, EXPLANATION} state_t; 
-extern state_t stan;
+extern state_t state;
 extern int rank;
 extern int size;
-extern int ln; //licznosc zespołu 
+extern int ln; 
 
 /*Zasoby */
 extern int B;

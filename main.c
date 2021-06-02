@@ -1,16 +1,15 @@
 #include "main.h"
-#include "watek_komunikacyjny.h"
+#include "communication_thread.h"
 #include "watek_glowny.h"
 #include "structs.h"
 #include "queue.h"
 #include <pthread.h>
 
 int lclock;
-state_t stan=INIT;;
+state_t state=INIT;;
 int size,rank, B, K, ln, F;
-int free_B, free_K, free_F;
 MPI_Datatype MPI_PAKIET_T;
-pthread_t threadKom; 
+pthread_t threadCom; 
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t callowMut = PTHREAD_MUTEX_INITIALIZER;
@@ -72,23 +71,20 @@ void inicjuj(int *argc, char ***argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    pthread_create( &threadKom, NULL, startKomWatek , 0);
+    pthread_create(&threadCom, NULL, startComThread , 0);
 }
 
-/* usunięcie zamkków, czeka, aż zakończy się drugi wątek, zwalnia przydzielony typ MPI_PAKIET_T
-   wywoływane w funkcji main przed końcem
-*/
-void finalizuj()
+
+void finish()
 {
     pthread_mutex_destroy(&stateMut);
     /* Czekamy, aż wątek potomny się zakończy */
     println("czekam na wątek \"komunikacyjny\"\n" );
-    pthread_join(threadKom,NULL);
+    pthread_join(threadCom,NULL);
     MPI_Type_free(&MPI_PAKIET_T);
     MPI_Finalize();
 }
 
-/* opis patrz main.h */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
     pkt->src = rank;
@@ -96,7 +92,6 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     MPI_Send(pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
 }
 
-//lepiej zmienic nazwe - to zmienia zegar przy odebraniu wiadomosci 
 int setClock(int newClock){
     pthread_mutex_lock(&callowMut);
     lclock = (lclock+1 > newClock)? (lclock+1):newClock;
@@ -104,7 +99,6 @@ int setClock(int newClock){
     return lclock;
 }
 
-//zwykly clock+1
 int changeClock(int newClock){
     pthread_mutex_lock(&callowMut);
     lclock+=newClock;
@@ -116,22 +110,22 @@ void changeState(state_t newState)
 {
     changeClock(1);
     pthread_mutex_lock(&stateMut);
-    stan = newState;
+    state = newState;
     pthread_mutex_unlock(&stateMut);
 }
 
 int main(int argc, char **argv)
 {
-    /* Tworzenie wątków, inicjalizacja itp */
-    inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
+  
+    inicjuj(&argc,&argv);
     B = 10;
     K = 4;
     F = 1;
     srandom(rank);
     ln = random()%5+2;
     sleep(2);
-    mainLoop();          // w pliku "watek_glowny.c"
-    finalizuj();
+    mainLoop();     
+    finish();
     return 0;
 }
 
