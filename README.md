@@ -11,19 +11,19 @@ zajmują jedno pole startowe, odpalają rakietę, cieszą się jak dzieci z BUM 
 tym razem jedno z B biurek (tych samych co poprzednio), gdzie wysmarowują
 wiarygodnie brzmiące wyjaśnienie, dlaczego rakieta znowu wybuchła.
 Założenia na temat środowiska komunikacyjnego:
-● zegar Lamporta jest rosnący, pomijamy czasy przetwarzania lokalnego (poza zmianą
+- zegar Lamporta jest rosnący, pomijamy czasy przetwarzania lokalnego (poza zmianą
 stanu)
-● kanały FIFO
-● żaden z procesów nie ulegnie awarii
-● pojemność kanału - maksymalnie 3N-3 (modelowana sytuacja: proces przechodzi do
+- kanały FIFO
+- żaden z procesów nie ulegnie awarii
+- pojemność kanału - maksymalnie 3N-3 (modelowana sytuacja: proces przechodzi do
 stanu w którym nie czyta żadnych wiadomości, wtedy może dostać N-1 RELEASow,
 po czym wysłać swój REQUEST, dostać N-1 ACK i N-1 REQUESTÓW)
 Złożoność komunikacyjna i czasowa:
 z punktu widzenia konkretnego procesu żeby dowiedzieć się czy nasz proces może
 wejść do sekcji krytycznej: potrzebuje wysłać jeden REQUEST do wszystkich i odebrać N-1
 ACK/RELEASow:
-● złożoność komunikacyjna - 2n-2 (jeżeli z RELEASEM to 3n-3)
-● złożoność czasowa - 2t (jeżeli z RELEASEM to 3t)
+- złożoność komunikacyjna - 2n-2 (jeżeli z RELEASEM to 3n-3)
+- złożoność czasowa - 2t (jeżeli z RELEASEM to 3t)
 TYPY WIADOMOŚCI:
 REQUEST_FOR_DESK - zgłoszenie żądanie o przydziale biurek
 * znacznik czasowy
